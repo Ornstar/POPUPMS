@@ -61,7 +61,7 @@ const injectCSS = () => {
 
 /* CARD - lebih kecil tapi tetap premium */
 .sW{
-  width:min(440px, 90vw);      /* ✅ sebelumnya 560px */
+  width:min(440px, 90vw);
   border-radius:18px;
   overflow:hidden;
   position:relative;
@@ -81,10 +81,10 @@ const injectCSS = () => {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* inner border biar proporsional */
+/* inner border */
 .sW:before{
   content:"";
-  position:absolute; inset:8px;   /* ✅ sebelumnya 10px */
+  position:absolute; inset:8px;
   border-radius:14px;
   border:1px solid rgba(255,255,255,.06);
   pointer-events:none;
@@ -95,16 +95,19 @@ const injectCSS = () => {
 .sI{width:100%;height:auto;display:block;max-width:100%;max-height:none}
 
 /* Content lebih compact */
-.sC{padding:12px 12px 14px}       /* ✅ sebelumnya 14px 14px 16px */
+.sC{padding:12px 12px 14px}
+
+/* ✅ Judul utama dibuat lebih bold & premium */
 .sT{
   text-align:center;
-  font-size:18px;                 /* ✅ sebelumnya 20px */
-  font-weight:900;
+  font-size:18px;
+  font-weight:900;              /* tebal */
+  letter-spacing:.7px;          /* lebih premium */
   margin-bottom:6px;
-  letter-spacing:.3px;
-  text-shadow: 0 2px 12px rgba(0,0,0,.55);
+  text-shadow: 0 3px 18px rgba(0,0,0,.65);
 }
 
+/* pill text */
 .sImlek{
   margin:8px 0 10px;
   text-align:center;
@@ -152,11 +155,21 @@ const injectCSS = () => {
     0 0 0 1px rgba(255,255,255,.06) inset;
 }
 
+/* ✅ Judul item (BONUS SAHUR, dll) dibuat tebal */
+.sK .sKTitle{
+  display:block;
+  font-weight:900;
+  letter-spacing:.55px;
+  text-shadow: 0 2px 10px rgba(0,0,0,.45);
+}
+
+/* angka/status (35%, MEMBER, dll) tetap gold & tebal */
 .sK b{
   display:block;
   color:var(--gold);
   margin:5px 0 6px;
   font-size:13px;
+  font-weight:900;
   letter-spacing:.2px;
   text-shadow: 0 0 14px rgba(255,213,107,.20);
 }
@@ -259,7 +272,7 @@ const injectCSS = () => {
 .sClose:active{ transform: scale(.98); }
 
 @media(max-width:640px){
-  .sW{width:min(360px, 92vw)}  /* mobile tetap pas */
+  .sW{width:min(360px, 92vw)}
   .sT{font-size:16px}
   .sG{gap:9px}
 }
@@ -280,16 +293,27 @@ const renderHTML = () => `
       <div class="sS">JOIN KOMUNITAS MAUSLOT PRIORITAS RASAKAN MANFAATNYA</div>
 
       <div class="sG">
-        <div class="sK">BONUS SAHUR<b>35%</b>
+        <div class="sK">
+          <span class="sKTitle">BONUS SAHUR</span>
+          <b>35%</b>
           <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
         </div>
-        <div class="sK">BONUS NGABUBURIT<b>25%</b>
+
+        <div class="sK">
+          <span class="sKTitle">BONUS NGABUBURIT</span>
+          <b>25%</b>
           <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
         </div>
-        <div class="sK">LUCKY WHEEL<b>MEMBER</b>
+
+        <div class="sK">
+          <span class="sKTitle">LUCKY WHEEL</span>
+          <b>MEMBER</b>
           <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
         </div>
-        <div class="sK">LOYALTY POIN<b>AKTIF</b>
+
+        <div class="sK">
+          <span class="sKTitle">LOYALTY POIN</span>
+          <b>AKTIF</b>
           <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
         </div>
       </div>
