@@ -2,7 +2,7 @@
 
 const CONFIG = {
   LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
-  IMAGE_URL: "https://i.ibb.co/TDNZCz7Y/Desain-tanpa-judul-1.png",
+  IMAGE_URL: "https://i.postimg.cc/j26536mc/20260227004303000000645b6dcba3-360x160.webp",
   STYLE_ID: "MAUSLOT_style_IMLEK_FX",
   OVERLAY_ID: "MAUSLOTOv",
   CLOSE_ID: "MAUSLOTClose",
