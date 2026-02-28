@@ -1,4 +1,3 @@
-<script>
 (() => {
 
 const CONFIG = {
@@ -234,4 +233,3 @@ document.readyState==="loading"
   : tick();
 
 })();
-</script>
