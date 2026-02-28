@@ -1,3 +1,4 @@
+<script>
 (() => {
 
 const CONFIG = {
@@ -44,7 +45,7 @@ const injectCSS = () => {
 
 /* CARD */
 .sW{
-  width:min(560px, 95vw);     /* responsif & besar */
+  width:min(560px, 95vw);
   border-radius:16px;
   overflow:hidden;
   background:linear-gradient(180deg,#000,#010f69,#01093a);
@@ -54,21 +55,8 @@ const injectCSS = () => {
   font-family:sans-serif;
 }
 
-/* WRAP IMAGE (HILANGKAN KOTAK MERAH) */
-.sIW{
-  padding:0;                  /* hilang ruang hitam */
-  background:transparent;     /* hilang background hitam */
-  text-align:center;
-}
-
-/* IMAGE FULL */
-.sI{
-  width:100%;
-  height:auto;
-  display:block;              /* hilang gap bawah image */
-  max-width:100%;
-  max-height:none;            /* hapus batas 150px */
-}
+.sIW{padding:0;background:transparent;text-align:center}
+.sI{width:100%;height:auto;display:block;max-width:100%;max-height:none}
 
 .sC{padding:14px}
 .sT{text-align:center;font-size:20px;font-weight:900;margin-bottom:6px}
@@ -96,13 +84,48 @@ const injectCSS = () => {
 }
 .sK b{display:block;color:#ffd56b;margin:4px 0}
 
+/* ======================
+   BUTTON ANIMATION (RINGAN)
+   - hanya transform/opacity
+   - ada hover/tap feedback
+   ====================== */
+@keyframes sBtnFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%     { transform: translateY(-1px) scale(1.02); }
+}
+
 .sBtn{
-  display:block;margin-top:6px;
+  display:block;
+  margin-top:6px;
   background:linear-gradient(180deg,#1e5bff,#0f2b8a);
-  color:#fff;text-decoration:none;
-  padding:6px;border-radius:999px;
-  font-size:11px;font-weight:700;
-  border:1px solid #ffd56b
+  color:#fff;
+  text-decoration:none;
+  padding:6px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:700;
+  border:1px solid #ffd56b;
+
+  /* performance */
+  will-change: transform;
+  transform: translateZ(0);
+
+  /* anim halus */
+  animation: sBtnFloat 2.4s ease-in-out infinite;
+}
+
+.sBtn:hover{
+  transform: translateY(-2px) scale(1.03);
+}
+
+.sBtn:active{
+  transform: translateY(0) scale(0.98);
+  opacity: .92;
+}
+
+/* Kurangi animasi kalau user setting reduce motion */
+@media (prefers-reduced-motion: reduce){
+  .sBtn{ animation:none !important; }
 }
 
 .sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85}
@@ -151,7 +174,7 @@ const renderHTML = () => `
           <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
         </div>
         <div class="sK">LOYALTY POIN<b>AKTIF</b>
-          <a class="sBtn" href="${CONFIG.TELA_URL}" target="_blank" rel="noopener">Telegram</a>
+          <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
         </div>
       </div>
 
@@ -211,3 +234,4 @@ document.readyState==="loading"
   : tick();
 
 })();
+</script>
