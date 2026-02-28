@@ -2,8 +2,7 @@
 
 const CONFIG = {
   LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
-  WA_URL: "https://urlmsshorten.com/livechat-mauslot",
-  TELE_URL: "https://urlmsshorten.com/livechat-mauslot",
+  TELE_URL: "https://urlmsshorten.com/group-tele-official",
   IMAGE_URL: "https://i.postimg.cc/gcg18Ln1/MS009-Mobile.jpg",
   STYLE_ID: "MAUSLOT_style_IMLEK_FX",
   OVERLAY_ID: "MAUSLOTOv",
@@ -149,10 +148,10 @@ const renderHTML = () => `
           <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
         </div>
         <div class="sK">LUCKY WHEEL<b>MEMBER</b>
-          <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
+          <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
         </div>
         <div class="sK">LOYALTY POIN<b>AKTIF</b>
-          <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
+          <a class="sBtn" href="${CONFIG.TELA_URL}" target="_blank" rel="noopener">Telegram</a>
         </div>
       </div>
 
