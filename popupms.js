@@ -50,7 +50,6 @@ const injectCSS = () => {
   display:flex; align-items:center; justify-content:center;
   padding:12px;
 
-  /* premium overlay */
   background:
     radial-gradient(900px 520px at 50% 45%, rgba(255,213,107,.14), transparent 60%),
     radial-gradient(800px 520px at 50% 60%, rgba(30,91,255,.12), transparent 62%),
@@ -60,9 +59,9 @@ const injectCSS = () => {
   backdrop-filter: blur(2px);
 }
 
-/* CARD - lebih premium (inner border + highlight) */
+/* CARD - lebih kecil tapi tetap premium */
 .sW{
-  width:min(560px, 95vw);
+  width:min(440px, 90vw);      /* ✅ sebelumnya 560px */
   border-radius:18px;
   overflow:hidden;
   position:relative;
@@ -82,10 +81,10 @@ const injectCSS = () => {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* tipis garis di dalam biar “mahal” */
+/* inner border biar proporsional */
 .sW:before{
   content:"";
-  position:absolute; inset:10px;
+  position:absolute; inset:8px;   /* ✅ sebelumnya 10px */
   border-radius:14px;
   border:1px solid rgba(255,255,255,.06);
   pointer-events:none;
@@ -95,19 +94,19 @@ const injectCSS = () => {
 .sIW{padding:0;background:transparent;text-align:center}
 .sI{width:100%;height:auto;display:block;max-width:100%;max-height:none}
 
-.sC{padding:14px 14px 16px}
+/* Content lebih compact */
+.sC{padding:12px 12px 14px}       /* ✅ sebelumnya 14px 14px 16px */
 .sT{
   text-align:center;
-  font-size:20px;
+  font-size:18px;                 /* ✅ sebelumnya 20px */
   font-weight:900;
   margin-bottom:6px;
   letter-spacing:.3px;
   text-shadow: 0 2px 12px rgba(0,0,0,.55);
 }
 
-/* pill text */
 .sImlek{
-  margin:8px 0 12px;
+  margin:8px 0 10px;
   text-align:center;
   font-size:11px;
   font-weight:900;
@@ -116,8 +115,7 @@ const injectCSS = () => {
   padding:7px 12px;
   border-radius:999px;
 
-  background:
-    linear-gradient(180deg, rgba(160,0,0,.72), rgba(120,0,0,.55));
+  background: linear-gradient(180deg, rgba(160,0,0,.72), rgba(120,0,0,.55));
   border:1px solid rgba(255,213,107,.50);
 
   box-shadow:
@@ -128,7 +126,7 @@ const injectCSS = () => {
 .sS{
   text-align:center;
   font-size:11px;
-  margin-bottom:12px;
+  margin-bottom:10px;
   color:#d6e3ff;
   opacity:.95;
 }
@@ -136,9 +134,9 @@ const injectCSS = () => {
 /* grid */
 .sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* CARD item lebih glass premium */
+/* item */
 .sK{
-  padding:12px 10px;
+  padding:11px 10px;
   border-radius:14px;
   position:relative;
   text-align:center;
@@ -163,12 +161,7 @@ const injectCSS = () => {
   text-shadow: 0 0 14px rgba(255,213,107,.20);
 }
 
-/* =========================
-   BUTTON PREMIUM + ANIMASI
-   - glow pulse halus
-   - shine sweep pelan (mewah)
-   - hover naik sedikit
-   ========================= */
+/* BUTTON premium */
 @keyframes sBtnPulse {
   0%,100% { transform: translateY(0) scale(1); filter: brightness(1); }
   50%     { transform: translateY(-1px) scale(1.02); filter: brightness(1.06); }
@@ -192,13 +185,9 @@ const injectCSS = () => {
   text-align:center;
   position:relative;
   overflow:hidden;
-
   color:#fff;
 
-  /* tetap biru utama tapi lebih “deep” */
-  background:
-    linear-gradient(180deg, rgba(50,120,255,1), rgba(10,30,110,1));
-
+  background: linear-gradient(180deg, rgba(50,120,255,1), rgba(10,30,110,1));
   border:1px solid rgba(255,213,107,.65);
 
   box-shadow:
@@ -211,7 +200,6 @@ const injectCSS = () => {
   animation: sBtnPulse 2.2s ease-in-out infinite;
 }
 
-/* kilau berjalan */
 .sBtn:before{
   content:"";
   position:absolute;
@@ -219,17 +207,12 @@ const injectCSS = () => {
   left:0;
   width:40%;
   height:140%;
-  background: linear-gradient(90deg,
-    transparent 0%,
-    rgba(255,255,255,.45) 50%,
-    transparent 100%
-  );
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.45) 50%, transparent 100%);
   opacity:0;
   animation: sBtnShine 3.8s ease-in-out infinite;
   pointer-events:none;
 }
 
-/* hover premium */
 .sBtn:hover{
   transform: translateY(-2px) scale(1.03);
   box-shadow:
@@ -239,22 +222,16 @@ const injectCSS = () => {
     0 0 24px rgba(30,91,255,.20);
 }
 
-.sBtn:active{
-  transform: translateY(0) scale(0.98);
-  opacity: .93;
-}
+.sBtn:active{ transform: translateY(0) scale(0.98); opacity:.93; }
 
-/* reduce motion */
 @media (prefers-reduced-motion: reduce){
   .sBtn{ animation:none !important; }
   .sBtn:before{ animation:none !important; }
 }
 
-/* footer & close */
 .sF{margin-top:12px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 .sCloseWrap{display:flex;justify-content:center}
 
-/* close button: lebih premium tapi tetap warna sama */
 .sClose{
   margin-top:12px;
   padding:9px 16px;
@@ -282,10 +259,9 @@ const injectCSS = () => {
 .sClose:active{ transform: scale(.98); }
 
 @media(max-width:640px){
-  .sW{width:min(360px, 95vw)}
+  .sW{width:min(360px, 92vw)}  /* mobile tetap pas */
   .sT{font-size:16px}
   .sG{gap:9px}
-  .sK{border-radius:13px}
 }
 `;
   document.head.appendChild(style);
