@@ -3,7 +3,7 @@
 const CONFIG = {
   LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
   TELE_URL: "https://urlmsshorten.com/group-tele-official",
-  IMAGE_URL: "https://i.postimg.cc/tTCSR6KJ/MS009-Promotion.jpg",
+  IMAGE_URL: "https://i.postimg.cc/vH5PJKvs/20260228-171756.jpg",
   STYLE_ID: "MAUSLOT_style_IMLEK_FX",
   OVERLAY_ID: "MAUSLOTOv",
   CLOSE_ID: "MAUSLOTClose",
