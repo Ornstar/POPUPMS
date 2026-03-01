@@ -115,14 +115,21 @@ const injectCSS = () => {
   opacity:.95;
 }
 
-/* =========================
-   GRID + PARTICLES BACKGROUND
-   bintik putih terbang di balik button
-   ========================= */
-@keyframes sParticlesFloat{
-  0%   { transform: translateY(0); opacity:.55; }
-  50%  { transform: translateY(-14px); opacity:.9; }
-  100% { transform: translateY(-28px); opacity:.55; }
+/* ==============================
+   AREA BIRU (GRID) + BACKGROUND FX
+   - asap/awan berjalan
+   - bintik putih sparkle bergerak
+   ============================== */
+@keyframes mistMove{
+  0%   { transform: translate3d(-6%, 2%, 0) scale(1.05); opacity:.55; }
+  50%  { transform: translate3d(6%, -2%, 0) scale(1.08); opacity:.80; }
+  100% { transform: translate3d(-6%, 2%, 0) scale(1.05); opacity:.55; }
+}
+
+@keyframes sparkleDrift{
+  0%   { transform: translate3d(0, 0, 0); opacity:.55; }
+  50%  { transform: translate3d(10px, -14px, 0); opacity:.95; }
+  100% { transform: translate3d(0, -28px, 0); opacity:.55; }
 }
 
 .sG{
@@ -130,47 +137,60 @@ const injectCSS = () => {
   grid-template-columns:1fr 1fr;
   gap:10px;
   position:relative;
-  padding:10px;               /* bikin ruang untuk background particles */
+  padding:12px;
   border-radius:16px;
   overflow:hidden;
-  background: rgba(255,255,255,.02);
-  border: 1px solid rgba(255,255,255,.05);
+
+  /* base panel biru */
+  background:
+    radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,.05), transparent 58%),
+    linear-gradient(180deg, rgba(8,30,85,.55), rgba(5,18,55,.45));
+
+  border:1px solid rgba(255,255,255,.06);
 }
 
-/* layer particles (di belakang) */
+/* layer 1: ASAP / AWAN */
 .sG:before{
   content:"";
   position:absolute;
   inset:-40px;
   z-index:0;
   pointer-events:none;
-  opacity:.75;
-  filter: blur(.2px);
 
-  /* 3 layer titik kecil random */
+  /* awan tipis = beberapa radial gradient besar */
   background:
-    radial-gradient(circle, rgba(255,255,255,.85) 0 1.2px, transparent 2.2px) 0 0/34px 34px,
-    radial-gradient(circle, rgba(255,255,255,.55) 0 1px,   transparent 2px)   18px 12px/46px 46px,
-    radial-gradient(circle, rgba(255,255,255,.35) 0 1px,   transparent 2px)   10px 26px/62px 62px;
+    radial-gradient(220px 160px at 15% 40%, rgba(255,255,255,.14), transparent 65%),
+    radial-gradient(260px 180px at 75% 30%, rgba(255,255,255,.10), transparent 66%),
+    radial-gradient(300px 210px at 45% 80%, rgba(255,255,255,.12), transparent 68%),
+    radial-gradient(240px 170px at 85% 78%, rgba(255,255,255,.08), transparent 68%);
 
-  animation: sParticlesFloat 6.5s ease-in-out infinite;
+  filter: blur(10px);
+  opacity:.75;
+  animation: mistMove 7.5s ease-in-out infinite;
 }
 
-/* layer glow halus untuk membuat lebih “premium” */
+/* layer 2: BINTIK PUTIH (sparkle) */
 .sG:after{
   content:"";
   position:absolute;
-  inset:0;
+  inset:-20px;
   z-index:0;
   pointer-events:none;
+
   background:
-    radial-gradient(60% 55% at 50% 10%, rgba(255,213,107,.10), transparent 60%),
-    radial-gradient(70% 60% at 50% 90%, rgba(30,91,255,.10), transparent 65%);
+    radial-gradient(circle, rgba(255,255,255,.95) 0 1px, transparent 2.2px) 0 0/46px 46px,
+    radial-gradient(circle, rgba(255,255,255,.65) 0 1px, transparent 2.2px) 18px 12px/62px 62px,
+    radial-gradient(circle, rgba(255,255,255,.45) 0 1px, transparent 2.2px) 10px 26px/78px 78px;
+
+  filter: blur(.2px);
+  opacity:.75;
+  animation: sparkleDrift 5.8s ease-in-out infinite;
 }
 
-/* pastikan isi grid di atas particles */
+/* isi grid harus di atas FX */
 .sG > *{ position:relative; z-index:1; }
 
+/* card item */
 .sK{
   padding:11px 10px;
   border-radius:14px;
@@ -190,7 +210,6 @@ const injectCSS = () => {
   letter-spacing:.55px;
   text-shadow:0 2px 10px rgba(0,0,0,.45);
 }
-
 .sK b{
   display:block;
   color:var(--gold);
@@ -201,7 +220,7 @@ const injectCSS = () => {
   text-shadow:0 0 14px rgba(255,213,107,.20);
 }
 
-/* BUTTON tetap premium */
+/* BUTTON premium */
 @keyframes btnFloat{
   0%,100%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.02); }
@@ -243,7 +262,6 @@ const injectCSS = () => {
   transform: translateZ(0);
   animation: btnFloat 2.4s ease-in-out infinite;
 }
-
 .sBtn:before{
   content:"";
   position:absolute;
@@ -256,12 +274,11 @@ const injectCSS = () => {
   animation: btnShimmer 3.2s ease-in-out infinite;
   pointer-events:none;
 }
-
 .sBtn:hover{ transform: translateY(-3px) scale(1.03); filter: brightness(1.06); }
 .sBtn:active{ transform: translateY(0) scale(.985); filter: brightness(.98); opacity:.96; }
 
 @media (prefers-reduced-motion: reduce){
-  .sBtn, .sBtn:before, .sG:before { animation:none !important; }
+  .sG:before, .sG:after, .sBtn, .sBtn:before { animation:none !important; }
 }
 
 .sF{margin-top:12px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
