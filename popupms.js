@@ -116,20 +116,20 @@ const injectCSS = () => {
 }
 
 /* ==============================
-   AREA BIRU (GRID) + BACKGROUND FX
-   - asap/awan berjalan
-   - bintik putih sparkle bergerak
+   GRID + BACKGROUND FX (ANTI PETAK)
+   - asap/awan besar (smooth)
+   - sparkle random (tanpa pattern repeat)
    ============================== */
-@keyframes mistMove{
-  0%   { transform: translate3d(-6%, 2%, 0) scale(1.05); opacity:.55; }
-  50%  { transform: translate3d(6%, -2%, 0) scale(1.08); opacity:.80; }
-  100% { transform: translate3d(-6%, 2%, 0) scale(1.05); opacity:.55; }
+@keyframes mistFlow{
+  0%   { transform: translate3d(-10px, 4px, 0) scale(1.06); opacity:.45; }
+  50%  { transform: translate3d(12px, -6px, 0) scale(1.10); opacity:.78; }
+  100% { transform: translate3d(-10px, 4px, 0) scale(1.06); opacity:.45; }
 }
 
-@keyframes sparkleDrift{
-  0%   { transform: translate3d(0, 0, 0); opacity:.55; }
-  50%  { transform: translate3d(10px, -14px, 0); opacity:.95; }
-  100% { transform: translate3d(0, -28px, 0); opacity:.55; }
+@keyframes sparkleFloat{
+  0%   { transform: translate3d(0, 0, 0); opacity:.35; }
+  40%  { transform: translate3d(8px, -10px, 0); opacity:.75; }
+  100% { transform: translate3d(-6px, -22px, 0); opacity:.35; }
 }
 
 .sG{
@@ -141,7 +141,6 @@ const injectCSS = () => {
   border-radius:16px;
   overflow:hidden;
 
-  /* base panel biru */
   background:
     radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,.05), transparent 58%),
     linear-gradient(180deg, rgba(8,30,85,.55), rgba(5,18,55,.45));
@@ -149,48 +148,57 @@ const injectCSS = () => {
   border:1px solid rgba(255,255,255,.06);
 }
 
-/* layer 1: ASAP / AWAN */
+/* asap/awan halus (TANPA repeat) */
 .sG:before{
+  content:"";
+  position:absolute;
+  inset:-60px;
+  z-index:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(340px 240px at 12% 30%, rgba(255,255,255,.16), transparent 70%),
+    radial-gradient(420px 300px at 80% 18%, rgba(255,255,255,.10), transparent 72%),
+    radial-gradient(460px 320px at 50% 75%, rgba(255,255,255,.12), transparent 74%),
+    radial-gradient(360px 260px at 88% 78%, rgba(255,255,255,.08), transparent 74%);
+
+  filter: blur(16px);
+  mix-blend-mode: screen;
+  opacity:.7;
+  animation: mistFlow 7.8s ease-in-out infinite;
+}
+
+/* sparkle bintik random (TANPA grid/petak) */
+.sG:after{
   content:"";
   position:absolute;
   inset:-40px;
   z-index:0;
   pointer-events:none;
 
-  /* awan tipis = beberapa radial gradient besar */
+  /* bintik dibuat dari banyak radial kecil posisi acak */
   background:
-    radial-gradient(220px 160px at 15% 40%, rgba(255,255,255,.14), transparent 65%),
-    radial-gradient(260px 180px at 75% 30%, rgba(255,255,255,.10), transparent 66%),
-    radial-gradient(300px 210px at 45% 80%, rgba(255,255,255,.12), transparent 68%),
-    radial-gradient(240px 170px at 85% 78%, rgba(255,255,255,.08), transparent 68%);
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,.9) 0 1.2px, transparent 2.6px),
+    radial-gradient(circle at 22% 62%, rgba(255,255,255,.6) 0 1px,   transparent 2.4px),
+    radial-gradient(circle at 35% 38%, rgba(255,255,255,.75) 0 1px,  transparent 2.5px),
+    radial-gradient(circle at 48% 70%, rgba(255,255,255,.55) 0 1px,  transparent 2.4px),
+    radial-gradient(circle at 58% 28%, rgba(255,255,255,.85) 0 1.2px, transparent 2.6px),
+    radial-gradient(circle at 72% 56%, rgba(255,255,255,.65) 0 1px,  transparent 2.4px),
+    radial-gradient(circle at 84% 35%, rgba(255,255,255,.75) 0 1px,  transparent 2.5px),
+    radial-gradient(circle at 92% 74%, rgba(255,255,255,.55) 0 1px,  transparent 2.4px),
 
-  filter: blur(10px);
-  opacity:.75;
-  animation: mistMove 7.5s ease-in-out infinite;
-}
-
-/* layer 2: BINTIK PUTIH (sparkle) */
-.sG:after{
-  content:"";
-  position:absolute;
-  inset:-20px;
-  z-index:0;
-  pointer-events:none;
-
-  background:
-    radial-gradient(circle, rgba(255,255,255,.95) 0 1px, transparent 2.2px) 0 0/46px 46px,
-    radial-gradient(circle, rgba(255,255,255,.65) 0 1px, transparent 2.2px) 18px 12px/62px 62px,
-    radial-gradient(circle, rgba(255,255,255,.45) 0 1px, transparent 2.2px) 10px 26px/78px 78px;
+    radial-gradient(circle at 16% 84%, rgba(255,255,255,.45) 0 1px, transparent 2.4px),
+    radial-gradient(circle at 66% 86%, rgba(255,255,255,.5) 0 1px, transparent 2.4px),
+    radial-gradient(circle at 40% 12%, rgba(255,255,255,.5) 0 1px, transparent 2.4px);
 
   filter: blur(.2px);
-  opacity:.75;
-  animation: sparkleDrift 5.8s ease-in-out infinite;
+  opacity:.65;
+  animation: sparkleFloat 6.2s ease-in-out infinite;
 }
 
 /* isi grid harus di atas FX */
 .sG > *{ position:relative; z-index:1; }
 
-/* card item */
 .sK{
   padding:11px 10px;
   border-radius:14px;
@@ -220,7 +228,7 @@ const injectCSS = () => {
   text-shadow:0 0 14px rgba(255,213,107,.20);
 }
 
-/* BUTTON premium */
+/* BUTTON */
 @keyframes btnFloat{
   0%,100%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.02); }
@@ -231,7 +239,6 @@ const injectCSS = () => {
   30%{ opacity:0; }
   100%{ transform: translateX(170%) skewX(-20deg); opacity:0; }
 }
-
 .sBtn{
   display:block;
   margin-top:6px;
@@ -251,7 +258,6 @@ const injectCSS = () => {
     linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
 
   border:1px solid rgba(255,213,107,.85);
-
   box-shadow:
     0 12px 20px rgba(0,0,0,.32),
     0 0 0 1px rgba(255,255,255,.10) inset,
@@ -283,7 +289,6 @@ const injectCSS = () => {
 
 .sF{margin-top:12px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 .sCloseWrap{display:flex;justify-content:center}
-
 .sClose{
   margin-top:12px;
   padding:10px 18px;
@@ -293,8 +298,6 @@ const injectCSS = () => {
   letter-spacing:.35px;
   cursor:pointer;
   color:#fff;
-  position:relative;
-  overflow:hidden;
   background:
     radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.18), transparent 45%),
     linear-gradient(180deg, rgba(30,110,155,1), rgba(10,60,95,1));
