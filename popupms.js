@@ -4,7 +4,7 @@ const CONFIG = {
   LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
   TELE_URL: "https://urlmsshorten.com/group-tele-official",
   IMAGE_URL: "https://i.postimg.cc/66Vg5Kbr/20260301-075640.jpg",
-  STYLE_ID: "MAUSLOT_style_IMLEK_FX",
+  STYLE_ID: "MAUSLOT_style_RAMADHAN_FX_ALLBG_V1", // ganti ID biar pasti ke-load baru
   OVERLAY_ID: "MAUSLOTOv",
   CLOSE_ID: "MAUSLOTClose",
   DATE_TEXT: "Selamat Menyambut Bulan Suci RAMADHAN",
@@ -80,9 +80,81 @@ const injectCSS = () => {
   pointer-events:none;
 }
 
+/* IMAGE */
 .sIW{padding:0;background:transparent;text-align:center}
 .sI{width:100%;height:auto;display:block;max-width:100%;max-height:none}
-.sC{padding:12px 12px 14px}
+
+/* =========================
+   CONTENT AREA (KOTAK MERAH) + FX
+   efek dipasang DI SINI
+   ========================= */
+@keyframes allMistFlow{
+  0%   { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
+  50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.78; }
+  100% { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
+}
+
+@keyframes allSparkleFloat{
+  0%   { transform: translate3d(0, 0, 0); opacity:.30; }
+  45%  { transform: translate3d(10px, -12px, 0); opacity:.70; }
+  100% { transform: translate3d(-8px, -26px, 0); opacity:.30; }
+}
+
+.sC{
+  padding:12px 12px 14px;
+  position:relative;
+  overflow:hidden;         /* penting biar FX tidak keluar */
+  isolation:isolate;       /* biar blend-mode aman */
+}
+
+/* layer asap/awan (smooth, no petak) */
+.sC:before{
+  content:"";
+  position:absolute;
+  inset:-80px;
+  z-index:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(420px 300px at 14% 30%, rgba(255,255,255,.14), transparent 72%),
+    radial-gradient(520px 360px at 85% 18%, rgba(255,255,255,.10), transparent 74%),
+    radial-gradient(560px 400px at 50% 72%, rgba(255,255,255,.12), transparent 76%),
+    radial-gradient(460px 330px at 88% 88%, rgba(255,255,255,.08), transparent 76%);
+
+  filter: blur(18px);
+  mix-blend-mode: screen;
+  opacity:.75;
+  animation: allMistFlow 7.8s ease-in-out infinite;
+}
+
+/* layer sparkle random (tanpa grid repeat) */
+.sC:after{
+  content:"";
+  position:absolute;
+  inset:-50px;
+  z-index:0;
+  pointer-events:none;
+
+  background:
+    radial-gradient(circle at 10% 20%, rgba(255,255,255,.85) 0 1.1px, transparent 2.6px),
+    radial-gradient(circle at 22% 62%, rgba(255,255,255,.55) 0 1px,   transparent 2.4px),
+    radial-gradient(circle at 35% 38%, rgba(255,255,255,.70) 0 1px,  transparent 2.5px),
+    radial-gradient(circle at 48% 70%, rgba(255,255,255,.50) 0 1px,  transparent 2.4px),
+    radial-gradient(circle at 58% 28%, rgba(255,255,255,.80) 0 1.1px, transparent 2.6px),
+    radial-gradient(circle at 72% 56%, rgba(255,255,255,.60) 0 1px,  transparent 2.4px),
+    radial-gradient(circle at 84% 35%, rgba(255,255,255,.70) 0 1px,  transparent 2.5px),
+    radial-gradient(circle at 92% 74%, rgba(255,255,255,.50) 0 1px,  transparent 2.4px),
+    radial-gradient(circle at 16% 84%, rgba(255,255,255,.42) 0 1px, transparent 2.4px),
+    radial-gradient(circle at 66% 86%, rgba(255,255,255,.48) 0 1px, transparent 2.4px),
+    radial-gradient(circle at 40% 12%, rgba(255,255,255,.46) 0 1px, transparent 2.4px);
+
+  filter: blur(.25px);
+  opacity:.65;
+  animation: allSparkleFloat 6.2s ease-in-out infinite;
+}
+
+/* semua konten di atas efek */
+.sC > *{ position:relative; z-index:1; }
 
 .sT{
   text-align:center;
@@ -115,90 +187,10 @@ const injectCSS = () => {
   opacity:.95;
 }
 
-/* ==============================
-   GRID + BACKGROUND FX (ANTI PETAK)
-   - asap/awan besar (smooth)
-   - sparkle random (tanpa pattern repeat)
-   ============================== */
-@keyframes mistFlow{
-  0%   { transform: translate3d(-10px, 4px, 0) scale(1.06); opacity:.45; }
-  50%  { transform: translate3d(12px, -6px, 0) scale(1.10); opacity:.78; }
-  100% { transform: translate3d(-10px, 4px, 0) scale(1.06); opacity:.45; }
-}
+/* GRID */
+.sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-@keyframes sparkleFloat{
-  0%   { transform: translate3d(0, 0, 0); opacity:.35; }
-  40%  { transform: translate3d(8px, -10px, 0); opacity:.75; }
-  100% { transform: translate3d(-6px, -22px, 0); opacity:.35; }
-}
-
-.sG{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  position:relative;
-  padding:12px;
-  border-radius:16px;
-  overflow:hidden;
-
-  background:
-    radial-gradient(120% 120% at 50% 0%, rgba(255,255,255,.05), transparent 58%),
-    linear-gradient(180deg, rgba(8,30,85,.55), rgba(5,18,55,.45));
-
-  border:1px solid rgba(255,255,255,.06);
-}
-
-/* asap/awan halus (TANPA repeat) */
-.sG:before{
-  content:"";
-  position:absolute;
-  inset:-60px;
-  z-index:0;
-  pointer-events:none;
-
-  background:
-    radial-gradient(340px 240px at 12% 30%, rgba(255,255,255,.16), transparent 70%),
-    radial-gradient(420px 300px at 80% 18%, rgba(255,255,255,.10), transparent 72%),
-    radial-gradient(460px 320px at 50% 75%, rgba(255,255,255,.12), transparent 74%),
-    radial-gradient(360px 260px at 88% 78%, rgba(255,255,255,.08), transparent 74%);
-
-  filter: blur(16px);
-  mix-blend-mode: screen;
-  opacity:.7;
-  animation: mistFlow 7.8s ease-in-out infinite;
-}
-
-/* sparkle bintik random (TANPA grid/petak) */
-.sG:after{
-  content:"";
-  position:absolute;
-  inset:-40px;
-  z-index:0;
-  pointer-events:none;
-
-  /* bintik dibuat dari banyak radial kecil posisi acak */
-  background:
-    radial-gradient(circle at 10% 20%, rgba(255,255,255,.9) 0 1.2px, transparent 2.6px),
-    radial-gradient(circle at 22% 62%, rgba(255,255,255,.6) 0 1px,   transparent 2.4px),
-    radial-gradient(circle at 35% 38%, rgba(255,255,255,.75) 0 1px,  transparent 2.5px),
-    radial-gradient(circle at 48% 70%, rgba(255,255,255,.55) 0 1px,  transparent 2.4px),
-    radial-gradient(circle at 58% 28%, rgba(255,255,255,.85) 0 1.2px, transparent 2.6px),
-    radial-gradient(circle at 72% 56%, rgba(255,255,255,.65) 0 1px,  transparent 2.4px),
-    radial-gradient(circle at 84% 35%, rgba(255,255,255,.75) 0 1px,  transparent 2.5px),
-    radial-gradient(circle at 92% 74%, rgba(255,255,255,.55) 0 1px,  transparent 2.4px),
-
-    radial-gradient(circle at 16% 84%, rgba(255,255,255,.45) 0 1px, transparent 2.4px),
-    radial-gradient(circle at 66% 86%, rgba(255,255,255,.5) 0 1px, transparent 2.4px),
-    radial-gradient(circle at 40% 12%, rgba(255,255,255,.5) 0 1px, transparent 2.4px);
-
-  filter: blur(.2px);
-  opacity:.65;
-  animation: sparkleFloat 6.2s ease-in-out infinite;
-}
-
-/* isi grid harus di atas FX */
-.sG > *{ position:relative; z-index:1; }
-
+/* item */
 .sK{
   padding:11px 10px;
   border-radius:14px;
@@ -239,6 +231,7 @@ const injectCSS = () => {
   30%{ opacity:0; }
   100%{ transform: translateX(170%) skewX(-20deg); opacity:0; }
 }
+
 .sBtn{
   display:block;
   margin-top:6px;
@@ -258,6 +251,7 @@ const injectCSS = () => {
     linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
 
   border:1px solid rgba(255,213,107,.85);
+
   box-shadow:
     0 12px 20px rgba(0,0,0,.32),
     0 0 0 1px rgba(255,255,255,.10) inset,
@@ -283,8 +277,9 @@ const injectCSS = () => {
 .sBtn:hover{ transform: translateY(-3px) scale(1.03); filter: brightness(1.06); }
 .sBtn:active{ transform: translateY(0) scale(.985); filter: brightness(.98); opacity:.96; }
 
+/* reduce motion */
 @media (prefers-reduced-motion: reduce){
-  .sG:before, .sG:after, .sBtn, .sBtn:before { animation:none !important; }
+  .sC:before, .sC:after, .sBtn, .sBtn:before { animation:none !important; }
 }
 
 .sF{margin-top:12px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
