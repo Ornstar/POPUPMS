@@ -4,9 +4,10 @@ const CONFIG = {
   LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
   TELE_URL: "https://urlmsshorten.com/group-tele-official",
   IMAGE_URL: "https://i.postimg.cc/66Vg5Kbr/20260301-075640.jpg",
-  STYLE_ID: "MAUSLOT_style_RAMADHAN_NOSCROLL_V1",
+  STYLE_ID: "MAUSLOT_style_RAMADHAN_KEEP_PILL_NOSCROLL_V1",
   OVERLAY_ID: "MAUSLOTOv",
   CLOSE_ID: "MAUSLOTClose",
+  DATE_TEXT: "Selamat Menyambut Bulan Suci RAMADHAN",
 };
 
 let isShown = false;
@@ -26,7 +27,8 @@ const removeOverlay = () => {
   const ov = document.getElementById(CONFIG.OVERLAY_ID);
   if (ov) ov.remove();
   isShown = false;
-  // pulihkan scroll body
+
+  // pulihkan scroll
   document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
 };
@@ -39,29 +41,28 @@ const injectCSS = () => {
   style.textContent = `
 :root{
   --gold:#ffd56b;
+  --gold2:#ffedb6;
   --bg1:#000;
   --bg2:#010f69;
   --bg3:#01093a;
 }
 
-/* ✅ overlay tidak boleh bikin scroll */
 #${CONFIG.OVERLAY_ID}{
   position:fixed; inset:0; z-index:2147483647;
   display:flex; align-items:center; justify-content:center;
   padding:12px;
-
-  overflow:hidden;            /* ✅ hilang scroll */
-  overscroll-behavior:none;   /* ✅ tahan bounce */
+  overflow:hidden;
+  overscroll-behavior:none;
 
   background:
     radial-gradient(900px 520px at 50% 45%, rgba(255,213,107,.14), transparent 60%),
     radial-gradient(800px 520px at 50% 60%, rgba(30,91,255,.12), transparent 62%),
     rgba(0,0,0,.62);
+
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 
-/* ✅ card fit layar, tanpa scroll */
 .sW{
   width:min(360px, 92vw);
   max-height:92vh;
@@ -69,7 +70,7 @@ const injectCSS = () => {
   flex-direction:column;
 
   border-radius:18px;
-  overflow:hidden;            /* ✅ hilang scroll & hilang horizontal */
+  overflow:hidden;
   position:relative;
 
   background:
@@ -87,7 +88,6 @@ const injectCSS = () => {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* inner border */
 .sW:before{
   content:"";
   position:absolute; inset:8px;
@@ -96,26 +96,26 @@ const injectCSS = () => {
   pointer-events:none;
 }
 
-/* ✅ IMAGE auto mengecil agar muat (tanpa scroll) */
+/* IMAGE */
 .sIW{padding:0;background:transparent;text-align:center; flex:0 0 auto;}
 .sI{
   width:100%;
   height:auto;
   display:block;
-  max-height:42vh;            /* ✅ kunci biar tidak kebesaran */
+  max-height:42vh;      /* supaya muat tanpa scroll */
   object-fit:contain;
 }
 
-/* ✅ content bawah, tanpa overflow */
+/* CONTENT */
 .sC{
   position:relative;
-  overflow:hidden;            /* ✅ NO SCROLL */
+  overflow:hidden;      /* ✅ no scroll */
   padding:12px;
   flex:1 1 auto;
   isolation:isolate;
 }
 
-/* FX background halus (di area biru) */
+/* FX background area biru */
 @keyframes mistFlow{
   0%   { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
   50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.75; }
@@ -126,7 +126,6 @@ const injectCSS = () => {
   45%  { transform: translate3d(10px, -12px, 0); opacity:.60; }
   100% { transform: translate3d(-8px, -26px, 0); opacity:.28; }
 }
-
 .sC:before{
   content:"";
   position:absolute; inset:-80px;
@@ -160,9 +159,33 @@ const injectCSS = () => {
 }
 .sC > *{ position:relative; z-index:1; }
 
-/* ✅ GRID */
-.sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* ✅ HAPUS JUDUL KOTAK MERAH SAJA */
+.sT{ display:none !important; }
 
+/* pill merah tetap ada */
+.sImlek{
+  margin:6px 0 10px;
+  text-align:center;
+  font-size:10.8px;
+  font-weight:900;
+  letter-spacing:.25px;
+  color:var(--gold2);
+  padding:7px 12px;
+  border-radius:999px;
+  background:linear-gradient(180deg, rgba(160,0,0,.72), rgba(120,0,0,.55));
+  border:1px solid rgba(255,213,107,.50);
+  box-shadow:0 8px 18px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
+}
+.sS{
+  text-align:center;
+  font-size:10.5px;
+  margin-bottom:10px;
+  color:#d6e3ff;
+  opacity:.95;
+}
+
+/* grid */
+.sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sK{
   padding:10px;
   border-radius:14px;
@@ -177,7 +200,7 @@ const injectCSS = () => {
 .sK .sKTitle{display:block;font-weight:900;letter-spacing:.5px}
 .sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
 
-/* ✅ BUTTON */
+/* buttons */
 @keyframes btnFloat{
   0%,100%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.02); }
@@ -201,35 +224,28 @@ const injectCSS = () => {
   position:relative;
   overflow:hidden;
   color:#fff;
-
   background:
     radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
     linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
-
   border:1px solid rgba(255,213,107,.85);
   box-shadow:
     0 12px 20px rgba(0,0,0,.32),
     0 0 0 1px rgba(255,255,255,.10) inset,
     0 -10px 18px rgba(0,0,0,.22) inset,
     0 0 18px rgba(30,91,255,.18);
-
   will-change: transform;
   transform: translateZ(0);
   animation: btnFloat 2.4s ease-in-out infinite;
 }
 .sBtn:before{
   content:"";
-  position:absolute;
-  top:-30%;
-  left:0;
-  width:42%;
-  height:170%;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
+  position:absolute; top:-30%; left:0;
+  width:42%; height:170%;
+  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
   opacity:0;
   animation: btnShimmer 3.2s ease-in-out infinite;
   pointer-events:none;
 }
-.sBtn:active{ transform: translateY(0) scale(.985); opacity:.96; }
 
 .sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 .sCloseWrap{display:flex;justify-content:center}
@@ -252,7 +268,7 @@ const injectCSS = () => {
     0 0 18px rgba(255,213,107,.12);
 }
 
-/* mobile lebih kecil */
+/* mobile */
 @media(max-width:640px){
   #${CONFIG.OVERLAY_ID}{ padding:10px; }
   .sW{ width:min(330px, 92vw); max-height:90vh; border-radius:16px; }
@@ -276,6 +292,10 @@ const renderHTML = () => `
     </div>
 
     <div class="sC">
+      <!-- .sT sengaja tidak dipakai (atau akan hide oleh CSS) -->
+      <div class="sImlek">${CONFIG.DATE_TEXT}</div>
+      <div class="sS">JOIN KOMUNITAS MAUSLOT PRIORITAS RASAKAN MANFAATNYA</div>
+
       <div class="sG">
         <div class="sK">
           <span class="sKTitle">BONUS SAHUR</span>
@@ -321,7 +341,7 @@ const closeOverlay = () => {
 const showOverlay = () => {
   if (isShown || isClosed) return;
 
-  // ✅ kunci scroll halaman belakang (biar ga ada scroll samping/bawah)
+  // kunci scroll background
   document.documentElement.style.overflow = "hidden";
   document.body.style.overflow = "hidden";
 
