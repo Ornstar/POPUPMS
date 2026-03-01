@@ -4,10 +4,9 @@ const CONFIG = {
   LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
   TELE_URL: "https://urlmsshorten.com/group-tele-official",
   IMAGE_URL: "https://i.postimg.cc/66Vg5Kbr/20260301-075640.jpg",
-  STYLE_ID: "MAUSLOT_style_RAMADHAN_FX_ALLBG_V2_SIZE",
+  STYLE_ID: "MAUSLOT_style_RAMADHAN_NOSCROLL_V1",
   OVERLAY_ID: "MAUSLOTOv",
   CLOSE_ID: "MAUSLOTClose",
-  DATE_TEXT: "Selamat Menyambut Bulan Suci RAMADHAN",
 };
 
 let isShown = false;
@@ -27,6 +26,9 @@ const removeOverlay = () => {
   const ov = document.getElementById(CONFIG.OVERLAY_ID);
   if (ov) ov.remove();
   isShown = false;
+  // pulihkan scroll body
+  document.documentElement.style.overflow = "";
+  document.body.style.overflow = "";
 };
 
 const injectCSS = () => {
@@ -37,16 +39,20 @@ const injectCSS = () => {
   style.textContent = `
 :root{
   --gold:#ffd56b;
-  --gold2:#ffedb6;
   --bg1:#000;
   --bg2:#010f69;
   --bg3:#01093a;
 }
 
+/* ✅ overlay tidak boleh bikin scroll */
 #${CONFIG.OVERLAY_ID}{
   position:fixed; inset:0; z-index:2147483647;
   display:flex; align-items:center; justify-content:center;
   padding:12px;
+
+  overflow:hidden;            /* ✅ hilang scroll */
+  overscroll-behavior:none;   /* ✅ tahan bounce */
+
   background:
     radial-gradient(900px 520px at 50% 45%, rgba(255,213,107,.14), transparent 60%),
     radial-gradient(800px 520px at 50% 60%, rgba(30,91,255,.12), transparent 62%),
@@ -55,15 +61,15 @@ const injectCSS = () => {
   backdrop-filter: blur(2px);
 }
 
-/* ✅ POPUP LEBIH KECIL + TIDAK MAKAN LAYAR */
+/* ✅ card fit layar, tanpa scroll */
 .sW{
-  width:min(380px, 88vw);     /* ✅ lebih kecil dari sebelumnya */
-  max-height: min(86vh, 780px); /* ✅ batasi tinggi */
+  width:min(360px, 92vw);
+  max-height:92vh;
   display:flex;
   flex-direction:column;
 
   border-radius:18px;
-  overflow:hidden;
+  overflow:hidden;            /* ✅ hilang scroll & hilang horizontal */
   position:relative;
 
   background:
@@ -90,43 +96,41 @@ const injectCSS = () => {
   pointer-events:none;
 }
 
-/* gambar tetap full */
+/* ✅ IMAGE auto mengecil agar muat (tanpa scroll) */
 .sIW{padding:0;background:transparent;text-align:center; flex:0 0 auto;}
-.sI{width:100%;height:auto;display:block;max-width:100%;max-height:none}
-
-/* ✅ BAGIAN BAWAH SCROLL JIKA TINGGI KELEWAT (Biar ga gede) */
-.sC{
-  padding:12px 12px 14px;
-  position:relative;
-  overflow:auto;              /* ✅ scroll kalau perlu */
-  -webkit-overflow-scrolling: touch;
-  isolation:isolate;
-  flex:1 1 auto;              /* ✅ ambil sisa tinggi */
+.sI{
+  width:100%;
+  height:auto;
+  display:block;
+  max-height:42vh;            /* ✅ kunci biar tidak kebesaran */
+  object-fit:contain;
 }
 
-/* scrollbar tipis (opsional, tetap premium) */
-.sC::-webkit-scrollbar{ width:6px; }
-.sC::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-radius:99px; }
-.sC::-webkit-scrollbar-track{ background:transparent; }
+/* ✅ content bawah, tanpa overflow */
+.sC{
+  position:relative;
+  overflow:hidden;            /* ✅ NO SCROLL */
+  padding:12px;
+  flex:1 1 auto;
+  isolation:isolate;
+}
 
-/* FX background seluruh area biru */
-@keyframes allMistFlow{
+/* FX background halus (di area biru) */
+@keyframes mistFlow{
   0%   { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
-  50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.78; }
+  50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.75; }
   100% { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
 }
-@keyframes allSparkleFloat{
-  0%   { transform: translate3d(0, 0, 0); opacity:.30; }
-  45%  { transform: translate3d(10px, -12px, 0); opacity:.70; }
-  100% { transform: translate3d(-8px, -26px, 0); opacity:.30; }
+@keyframes sparkleFloat{
+  0%   { transform: translate3d(0, 0, 0); opacity:.28; }
+  45%  { transform: translate3d(10px, -12px, 0); opacity:.60; }
+  100% { transform: translate3d(-8px, -26px, 0); opacity:.28; }
 }
 
 .sC:before{
   content:"";
-  position:absolute;
-  inset:-80px;
-  z-index:0;
-  pointer-events:none;
+  position:absolute; inset:-80px;
+  z-index:0; pointer-events:none;
   background:
     radial-gradient(420px 300px at 14% 30%, rgba(255,255,255,.14), transparent 72%),
     radial-gradient(520px 360px at 85% 18%, rgba(255,255,255,.10), transparent 74%),
@@ -135,14 +139,12 @@ const injectCSS = () => {
   filter: blur(18px);
   mix-blend-mode: screen;
   opacity:.75;
-  animation: allMistFlow 7.8s ease-in-out infinite;
+  animation: mistFlow 7.8s ease-in-out infinite;
 }
 .sC:after{
   content:"";
-  position:absolute;
-  inset:-50px;
-  z-index:0;
-  pointer-events:none;
+  position:absolute; inset:-50px;
+  z-index:0; pointer-events:none;
   background:
     radial-gradient(circle at 10% 20%, rgba(255,255,255,.85) 0 1.1px, transparent 2.6px),
     radial-gradient(circle at 22% 62%, rgba(255,255,255,.55) 0 1px,   transparent 2.4px),
@@ -151,77 +153,31 @@ const injectCSS = () => {
     radial-gradient(circle at 58% 28%, rgba(255,255,255,.80) 0 1.1px, transparent 2.6px),
     radial-gradient(circle at 72% 56%, rgba(255,255,255,.60) 0 1px,  transparent 2.4px),
     radial-gradient(circle at 84% 35%, rgba(255,255,255,.70) 0 1px,  transparent 2.5px),
-    radial-gradient(circle at 92% 74%, rgba(255,255,255,.50) 0 1px,  transparent 2.4px),
-    radial-gradient(circle at 16% 84%, rgba(255,255,255,.42) 0 1px, transparent 2.4px),
-    radial-gradient(circle at 66% 86%, rgba(255,255,255,.48) 0 1px, transparent 2.4px),
-    radial-gradient(circle at 40% 12%, rgba(255,255,255,.46) 0 1px, transparent 2.4px);
+    radial-gradient(circle at 92% 74%, rgba(255,255,255,.50) 0 1px,  transparent 2.4px);
   filter: blur(.25px);
-  opacity:.65;
-  animation: allSparkleFloat 6.2s ease-in-out infinite;
+  opacity:.55;
+  animation: sparkleFloat 6.2s ease-in-out infinite;
 }
-
-/* konten di atas FX */
 .sC > *{ position:relative; z-index:1; }
 
-/* teks & layout sedikit lebih compact biar muat */
-.sT{
-  text-align:center;
-  font-size:16px;             /* ✅ kecilkan sedikit */
-  font-weight:900;
-  letter-spacing:.6px;
-  margin-bottom:6px;
-  text-shadow:0 3px 18px rgba(0,0,0,.65);
-}
-
-.sImlek{
-  margin:8px 0 10px;
-  text-align:center;
-  font-size:10.5px;           /* ✅ kecilkan */
-  font-weight:900;
-  letter-spacing:.25px;
-  color:var(--gold2);
-  padding:7px 12px;
-  border-radius:999px;
-  background:linear-gradient(180deg, rgba(160,0,0,.72), rgba(120,0,0,.55));
-  border:1px solid rgba(255,213,107,.50);
-  box-shadow:0 8px 18px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
-
-.sS{
-  text-align:center;
-  font-size:10.5px;           /* ✅ kecilkan */
-  margin-bottom:10px;
-  color:#d6e3ff;
-  opacity:.95;
-}
-
+/* ✅ GRID */
 .sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
 .sK{
-  padding:10px 10px;          /* ✅ lebih compact */
+  padding:10px;
   border-radius:14px;
   text-align:center;
-  font-size:10.5px;           /* ✅ kecilkan */
+  font-size:10.5px;
   background:
     radial-gradient(120% 80% at 50% -15%, rgba(255,255,255,.10), transparent 58%),
     linear-gradient(180deg, rgba(9,36,92,.72), rgba(5,20,60,.68));
   border:1px solid rgba(255,213,107,.30);
   box-shadow:0 10px 22px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
 }
-.sK .sKTitle{
-  display:block;
-  font-weight:900;
-  letter-spacing:.5px;
-}
-.sK b{
-  display:block;
-  color:var(--gold);
-  margin:4px 0 6px;
-  font-size:12.5px;           /* ✅ kecilkan */
-  font-weight:900;
-}
+.sK .sKTitle{display:block;font-weight:900;letter-spacing:.5px}
+.sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
 
-/* buttons tetap premium tapi sedikit lebih kecil */
+/* ✅ BUTTON */
 @keyframes btnFloat{
   0%,100%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.02); }
@@ -235,9 +191,9 @@ const injectCSS = () => {
 .sBtn{
   display:block;
   margin-top:6px;
-  padding:9px 10px;          /* ✅ lebih kecil */
+  padding:9px 10px;
   border-radius:999px;
-  font-size:10.5px;          /* ✅ lebih kecil */
+  font-size:10.5px;
   font-weight:900;
   letter-spacing:.35px;
   text-decoration:none;
@@ -245,15 +201,18 @@ const injectCSS = () => {
   position:relative;
   overflow:hidden;
   color:#fff;
+
   background:
     radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
     linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
+
   border:1px solid rgba(255,213,107,.85);
   box-shadow:
     0 12px 20px rgba(0,0,0,.32),
     0 0 0 1px rgba(255,255,255,.10) inset,
     0 -10px 18px rgba(0,0,0,.22) inset,
     0 0 18px rgba(30,91,255,.18);
+
   will-change: transform;
   transform: translateZ(0);
   animation: btnFloat 2.4s ease-in-out infinite;
@@ -270,16 +229,15 @@ const injectCSS = () => {
   animation: btnShimmer 3.2s ease-in-out infinite;
   pointer-events:none;
 }
-.sBtn:hover{ transform: translateY(-3px) scale(1.03); filter: brightness(1.06); }
-.sBtn:active{ transform: translateY(0) scale(.985); filter: brightness(.98); opacity:.96; }
+.sBtn:active{ transform: translateY(0) scale(.985); opacity:.96; }
 
 .sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 .sCloseWrap{display:flex;justify-content:center}
 .sClose{
   margin-top:12px;
-  padding:9px 16px;          /* ✅ lebih kecil */
+  padding:9px 16px;
   border-radius:999px;
-  font-size:11px;            /* ✅ lebih kecil */
+  font-size:11px;
   font-weight:900;
   letter-spacing:.35px;
   cursor:pointer;
@@ -292,26 +250,19 @@ const injectCSS = () => {
     0 12px 18px rgba(0,0,0,.30),
     0 0 0 1px rgba(255,255,255,.10) inset,
     0 0 18px rgba(255,213,107,.12);
-  transition: transform .18s ease, filter .18s ease;
-}
-.sClose:hover{ transform: translateY(-2px); filter: brightness(1.06); }
-.sClose:active{ transform: scale(.985); filter: brightness(.98); }
-
-@media (prefers-reduced-motion: reduce){
-  .sC:before, .sC:after, .sBtn, .sBtn:before { animation:none !important; }
 }
 
-/* ✅ MOBILE: lebih kecil lagi */
+/* mobile lebih kecil */
 @media(max-width:640px){
   #${CONFIG.OVERLAY_ID}{ padding:10px; }
-  .sW{
-    width:min(330px, 92vw);      /* ✅ mobile lebih kecil */
-    max-height: 82vh;            /* ✅ jangan nutup layar */
-    border-radius:16px;
-  }
-  .sC{ padding:10px 10px 12px; }
-  .sT{ font-size:15px; }
+  .sW{ width:min(330px, 92vw); max-height:90vh; border-radius:16px; }
+  .sI{ max-height:40vh; }
+  .sC{ padding:10px; }
   .sG{ gap:9px; }
+}
+
+@media (prefers-reduced-motion: reduce){
+  .sC:before,.sC:after,.sBtn,.sBtn:before{ animation:none !important; }
 }
 `;
   document.head.appendChild(style);
@@ -325,10 +276,6 @@ const renderHTML = () => `
     </div>
 
     <div class="sC">
-      <div class="sT">MAUSLOT PRIORITAS, NIKMATI KEUNTUNGANNYA!</div>
-      <div class="sImlek">${CONFIG.DATE_TEXT}</div>
-      <div class="sS">JOIN KOMUNITAS MAUSLOT PRIORITAS RASAKAN MANFAATNYA</div>
-
       <div class="sG">
         <div class="sK">
           <span class="sKTitle">BONUS SAHUR</span>
@@ -373,6 +320,11 @@ const closeOverlay = () => {
 
 const showOverlay = () => {
   if (isShown || isClosed) return;
+
+  // ✅ kunci scroll halaman belakang (biar ga ada scroll samping/bawah)
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+
   injectCSS();
   document.body.insertAdjacentHTML("beforeend", renderHTML());
   isShown = true;
