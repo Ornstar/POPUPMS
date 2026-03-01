@@ -59,7 +59,7 @@ const injectCSS = () => {
   backdrop-filter: blur(2px);
 }
 
-/* CARD - lebih kecil tapi tetap premium */
+/* CARD */
 .sW{
   width:min(440px, 90vw);
   border-radius:18px;
@@ -81,7 +81,6 @@ const injectCSS = () => {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
 
-/* inner border */
 .sW:before{
   content:"";
   position:absolute; inset:8px;
@@ -94,20 +93,18 @@ const injectCSS = () => {
 .sIW{padding:0;background:transparent;text-align:center}
 .sI{width:100%;height:auto;display:block;max-width:100%;max-height:none}
 
-/* Content lebih compact */
+/* CONTENT */
 .sC{padding:12px 12px 14px}
 
-/* ✅ Judul utama dibuat lebih bold & premium */
 .sT{
   text-align:center;
   font-size:18px;
-  font-weight:900;              /* tebal */
-  letter-spacing:.7px;          /* lebih premium */
+  font-weight:900;
+  letter-spacing:.7px;
   margin-bottom:6px;
   text-shadow: 0 3px 18px rgba(0,0,0,.65);
 }
 
-/* pill text */
 .sImlek{
   margin:8px 0 10px;
   text-align:center;
@@ -120,7 +117,6 @@ const injectCSS = () => {
 
   background: linear-gradient(180deg, rgba(160,0,0,.72), rgba(120,0,0,.55));
   border:1px solid rgba(255,213,107,.50);
-
   box-shadow:
     0 8px 18px rgba(0,0,0,.28),
     0 0 0 1px rgba(255,255,255,.06) inset;
@@ -134,10 +130,9 @@ const injectCSS = () => {
   opacity:.95;
 }
 
-/* grid */
+/* GRID */
 .sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* item */
 .sK{
   padding:11px 10px;
   border-radius:14px;
@@ -155,7 +150,6 @@ const injectCSS = () => {
     0 0 0 1px rgba(255,255,255,.06) inset;
 }
 
-/* ✅ Judul item (BONUS SAHUR, dll) dibuat tebal */
 .sK .sKTitle{
   display:block;
   font-weight:900;
@@ -163,7 +157,6 @@ const injectCSS = () => {
   text-shadow: 0 2px 10px rgba(0,0,0,.45);
 }
 
-/* angka/status (35%, MEMBER, dll) tetap gold & tebal */
 .sK b{
   display:block;
   color:var(--gold);
@@ -174,103 +167,163 @@ const injectCSS = () => {
   text-shadow: 0 0 14px rgba(255,213,107,.20);
 }
 
-/* BUTTON premium */
-@keyframes sBtnPulse {
-  0%,100% { transform: translateY(0) scale(1); filter: brightness(1); }
-  50%     { transform: translateY(-1px) scale(1.02); filter: brightness(1.06); }
+/* =========================================
+   BUTTON SUPER PREMIUM (lebih kerasa mewah)
+   - 3D gloss
+   - gold outline glow
+   - shimmer sweep (lebih terlihat)
+   - micro float (halus)
+   ========================================= */
+@keyframes btnFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50%     { transform: translateY(-2px) scale(1.02); }
 }
-@keyframes sBtnShine {
-  0%   { transform: translateX(-120%) skewX(-18deg); opacity:0; }
-  15%  { opacity:.65; }
-  40%  { opacity:0; }
-  100% { transform: translateX(140%) skewX(-18deg); opacity:0; }
+@keyframes btnShimmer {
+  0%   { transform: translateX(-140%) skewX(-20deg); opacity:0; }
+  12%  { opacity:.75; }
+  30%  { opacity:0; }
+  100% { transform: translateX(170%) skewX(-20deg); opacity:0; }
+}
+@keyframes btnGlow {
+  0%,100% { box-shadow: 0 12px 20px rgba(0,0,0,.32), 0 0 0 1px rgba(255,255,255,.10) inset, 0 0 18px rgba(30,91,255,.18); }
+  50%     { box-shadow: 0 14px 24px rgba(0,0,0,.36), 0 0 0 1px rgba(255,255,255,.12) inset, 0 0 26px rgba(255,213,107,.16), 0 0 22px rgba(30,91,255,.22); }
 }
 
 .sBtn{
   display:block;
   margin-top:6px;
-  padding:8px 10px;
+  padding:10px 12px;           /* lebih “button feel” */
   border-radius:999px;
   font-size:11px;
   font-weight:900;
-  letter-spacing:.25px;
+  letter-spacing:.35px;
   text-decoration:none;
   text-align:center;
   position:relative;
   overflow:hidden;
-  color:#fff;
+  color:#ffffff;
 
-  background: linear-gradient(180deg, rgba(50,120,255,1), rgba(10,30,110,1));
-  border:1px solid rgba(255,213,107,.65);
+  /* 3D glossy */
+  background:
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
+    linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
 
+  border:1px solid rgba(255,213,107,.85);
+
+  /* base shadow */
   box-shadow:
-    0 10px 18px rgba(0,0,0,.30),
-    0 0 0 1px rgba(255,255,255,.08) inset,
-    0 0 22px rgba(30,91,255,.18);
+    0 12px 20px rgba(0,0,0,.32),
+    0 0 0 1px rgba(255,255,255,.10) inset,
+    0 -10px 18px rgba(0,0,0,.22) inset,
+    0 0 18px rgba(30,91,255,.18);
 
   will-change: transform;
   transform: translateZ(0);
-  animation: sBtnPulse 2.2s ease-in-out infinite;
+
+  animation: btnFloat 2.4s ease-in-out infinite, btnGlow 2.6s ease-in-out infinite;
 }
 
+/* highlight tipis di atas button (luxury) */
+.sBtn:after{
+  content:"";
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:8%;
+  height:38%;
+  border-radius:999px;
+  background: linear-gradient(180deg, rgba(255,255,255,.18), transparent);
+  pointer-events:none;
+  opacity:.9;
+}
+
+/* shimmer sweep */
 .sBtn:before{
   content:"";
   position:absolute;
-  top:-20%;
+  top:-30%;
   left:0;
-  width:40%;
-  height:140%;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.45) 50%, transparent 100%);
+  width:42%;
+  height:170%;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(255,255,255,.75) 50%,
+    transparent 100%
+  );
   opacity:0;
-  animation: sBtnShine 3.8s ease-in-out infinite;
+  animation: btnShimmer 3.2s ease-in-out infinite;
   pointer-events:none;
 }
 
+/* hover / active */
 .sBtn:hover{
-  transform: translateY(-2px) scale(1.03);
-  box-shadow:
-    0 14px 22px rgba(0,0,0,.34),
-    0 0 0 1px rgba(255,255,255,.10) inset,
-    0 0 26px rgba(255,213,107,.16),
-    0 0 24px rgba(30,91,255,.20);
+  transform: translateY(-3px) scale(1.03);
+  filter: brightness(1.06);
+}
+.sBtn:active{
+  transform: translateY(0) scale(.985);
+  filter: brightness(.98);
+  opacity:.96;
 }
 
-.sBtn:active{ transform: translateY(0) scale(0.98); opacity:.93; }
-
+/* Reduce motion */
 @media (prefers-reduced-motion: reduce){
   .sBtn{ animation:none !important; }
   .sBtn:before{ animation:none !important; }
 }
 
+/* FOOTER */
 .sF{margin-top:12px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 .sCloseWrap{display:flex;justify-content:center}
 
+/* CLOSE button dibuat sama-sama mewah */
+@keyframes closeShimmer{
+  0%   { transform: translateX(-140%) skewX(-20deg); opacity:0; }
+  12%  { opacity:.65; }
+  30%  { opacity:0; }
+  100% { transform: translateX(170%) skewX(-20deg); opacity:0; }
+}
 .sClose{
   margin-top:12px;
-  padding:9px 16px;
+  padding:10px 18px;
   border-radius:999px;
   font-size:12px;
   font-weight:900;
-  letter-spacing:.25px;
+  letter-spacing:.35px;
   cursor:pointer;
   color:#fff;
+  position:relative;
+  overflow:hidden;
 
   background:
-    radial-gradient(120% 90% at 50% -10%, rgba(255,255,255,.10), transparent 60%),
-    linear-gradient(180deg, rgba(20,87,120,1), rgba(12,62,92,1));
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.18), transparent 45%),
+    linear-gradient(180deg, rgba(30,110,155,1), rgba(10,60,95,1));
 
-  border:2px solid rgba(255,213,107,.75);
+  border:2px solid rgba(255,213,107,.85);
 
   box-shadow:
     0 12px 18px rgba(0,0,0,.30),
-    0 0 0 1px rgba(255,255,255,.08) inset,
+    0 0 0 1px rgba(255,255,255,.10) inset,
     0 0 18px rgba(255,213,107,.12);
 
   transition: transform .18s ease, filter .18s ease;
 }
-.sClose:hover{ transform: translateY(-1px); filter: brightness(1.06); }
-.sClose:active{ transform: scale(.98); }
+.sClose:before{
+  content:"";
+  position:absolute;
+  top:-30%;
+  left:0;
+  width:45%;
+  height:170%;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.70) 50%, transparent 100%);
+  opacity:0;
+  animation: closeShimmer 3.6s ease-in-out infinite;
+  pointer-events:none;
+}
+.sClose:hover{ transform: translateY(-2px); filter: brightness(1.06); }
+.sClose:active{ transform: scale(.985); filter: brightness(.98); }
 
+/* MOBILE */
 @media(max-width:640px){
   .sW{width:min(360px, 92vw)}
   .sT{font-size:16px}
