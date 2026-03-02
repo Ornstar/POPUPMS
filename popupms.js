@@ -47,47 +47,42 @@ const injectCSS = () => {
   --bg3:#01093a;
 }
 
+/* overlay backdrop */
 #${CONFIG.OVERLAY_ID}{
   position:fixed; inset:0; z-index:2147483647;
   display:flex; align-items:center; justify-content:center;
   padding:12px;
   overflow:hidden;
   overscroll-behavior:none;
-
   background:
     radial-gradient(900px 520px at 50% 45%, rgba(255,213,107,.14), transparent 60%),
     radial-gradient(800px 520px at 50% 60%, rgba(30,91,255,.12), transparent 62%),
     rgba(0,0,0,.62);
-
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 
+/* card */
 .sW{
   width:min(360px, 92vw);
   max-height:92vh;
   display:flex;
   flex-direction:column;
-
   border-radius:18px;
   overflow:hidden;
   position:relative;
-
   background:
     radial-gradient(120% 90% at 50% -10%, rgba(255,213,107,.16), transparent 58%),
     radial-gradient(90% 70% at 18% 120%, rgba(30,91,255,.14), transparent 60%),
     linear-gradient(180deg,var(--bg1),var(--bg2),var(--bg3));
-
   border:1px solid rgba(255,213,107,.65);
   box-shadow:
     0 18px 60px rgba(0,0,0,.70),
     0 0 0 1px rgba(255,255,255,.06) inset,
     0 0 40px rgba(255,213,107,.12);
-
   color:#fff;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
 }
-
 .sW:before{
   content:"";
   position:absolute; inset:8px;
@@ -102,14 +97,14 @@ const injectCSS = () => {
   width:100%;
   height:auto;
   display:block;
-  max-height:42vh;      /* supaya muat tanpa scroll */
+  max-height:42vh;
   object-fit:contain;
 }
 
 /* CONTENT */
 .sC{
   position:relative;
-  overflow:hidden;      /* ✅ no scroll */
+  overflow:hidden;     /* ✅ no scroll */
   padding:12px;
   flex:1 1 auto;
   isolation:isolate;
@@ -200,17 +195,36 @@ const injectCSS = () => {
 .sK .sKTitle{display:block;font-weight:900;letter-spacing:.5px}
 .sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
 
-/* buttons */
+/* ==============================
+   ✅ BUTTON BLINK / KILAU BERGERAK (kotak merah)
+   - Berlaku untuk .sBtn (Livechat/Telegram) + .sClose (Tutup)
+   ============================== */
+
 @keyframes btnFloat{
   0%,100%{ transform: translateY(0) scale(1); }
   50%{ transform: translateY(-2px) scale(1.02); }
 }
-@keyframes btnShimmer{
-  0%{ transform: translateX(-140%) skewX(-20deg); opacity:0; }
-  12%{ opacity:.75; }
-  30%{ opacity:0; }
-  100%{ transform: translateX(170%) skewX(-20deg); opacity:0; }
+@keyframes sweep{
+  0%   { transform: translateX(-140%) skewX(-18deg); opacity:0; }
+  10%  { opacity:.85; }
+  28%  { opacity:0; }
+  100% { transform: translateX(180%) skewX(-18deg); opacity:0; }
 }
+/* glow pinggir “blink” */
+@keyframes edgeBlink{
+  0%,100%{ filter: drop-shadow(0 0 0 rgba(255,213,107,0)); opacity:.65; }
+  50%    { filter: drop-shadow(0 0 10px rgba(255,213,107,.55)); opacity:1; }
+}
+
+.sBtn,
+.sClose{
+  position:relative;
+  overflow:hidden;
+  transform: translateZ(0);
+  will-change: transform, filter;
+}
+
+/* tombol utama */
 .sBtn{
   display:block;
   margin-top:6px;
@@ -221,33 +235,58 @@ const injectCSS = () => {
   letter-spacing:.35px;
   text-decoration:none;
   text-align:center;
-  position:relative;
-  overflow:hidden;
   color:#fff;
   background:
     radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
     linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
-  border:1px solid rgba(255,213,107,.85);
+  border:1px solid rgba(255,213,107,.90);
   box-shadow:
     0 12px 20px rgba(0,0,0,.32),
     0 0 0 1px rgba(255,255,255,.10) inset,
     0 -10px 18px rgba(0,0,0,.22) inset,
     0 0 18px rgba(30,91,255,.18);
-  will-change: transform;
-  transform: translateZ(0);
-  animation: btnFloat 2.4s ease-in-out infinite;
-}
-.sBtn:before{
-  content:"";
-  position:absolute; top:-30%; left:0;
-  width:42%; height:170%;
-  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
-  opacity:0;
-  animation: btnShimmer 3.2s ease-in-out infinite;
-  pointer-events:none;
+  animation: btnFloat 2.4s ease-in-out infinite, edgeBlink 1.6s ease-in-out infinite;
 }
 
-.sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
+/* kilau bergerak (blink sweep) */
+.sBtn:before,
+.sClose:before{
+  content:"";
+  position:absolute; top:-30%; left:0;
+  width:46%; height:180%;
+  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,.85) 50%, transparent 100%);
+  opacity:0;
+  pointer-events:none;
+  animation: sweep 2.6s ease-in-out infinite;
+}
+
+/* tambahan “blink” tipis yang jalan di pinggir */
+.sBtn:after,
+.sClose:after{
+  content:"";
+  position:absolute; inset:-2px;
+  border-radius:999px;
+  padding:2px;
+  background: conic-gradient(
+    from 0deg,
+    rgba(255,213,107,0) 0%,
+    rgba(255,213,107,.95) 12%,
+    rgba(30,91,255,.85) 25%,
+    rgba(255,255,255,.95) 35%,
+    rgba(255,213,107,0) 55%,
+    rgba(255,213,107,0) 100%
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity:.0;
+  pointer-events:none;
+  animation: edgeBlink 1.6s ease-in-out infinite;
+}
+
+/* tombol tutup */
 .sCloseWrap{display:flex;justify-content:center}
 .sClose{
   margin-top:12px;
@@ -261,24 +300,59 @@ const injectCSS = () => {
   background:
     radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.18), transparent 45%),
     linear-gradient(180deg, rgba(30,110,155,1), rgba(10,60,95,1));
-  border:2px solid rgba(255,213,107,.85);
+  border:2px solid rgba(255,213,107,.90);
   box-shadow:
     0 12px 18px rgba(0,0,0,.30),
     0 0 0 1px rgba(255,255,255,.10) inset,
-    0 0 18px rgba(255,213,107,.12);
+    0 0 18px rgba(255,213,107,.14);
+  animation: edgeBlink 1.6s ease-in-out infinite;
 }
 
-/* mobile */
+/* footer */
+.sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
+
+/* ==============================
+   ✅ MOBILE DIPERKECIL (kotak kuning)
+   ============================== */
 @media(max-width:640px){
-  #${CONFIG.OVERLAY_ID}{ padding:10px; }
-  .sW{ width:min(330px, 92vw); max-height:90vh; border-radius:16px; }
-  .sI{ max-height:40vh; }
-  .sC{ padding:10px; }
-  .sG{ gap:9px; }
+  #${CONFIG.OVERLAY_ID}{ padding:8px; }
+
+  /* card lebih kecil */
+  .sW{
+    width:min(300px, 88vw);
+    max-height:86vh;
+    border-radius:14px;
+  }
+
+  /* gambar lebih pendek biar ga nutup layar */
+  .sI{ max-height:30vh; }
+
+  /* padding dipersempit */
+  .sC{ padding:9px; }
+
+  /* grid gap & card isi lebih rapat */
+  .sG{ gap:8px; }
+  .sK{ padding:9px; border-radius:12px; }
+
+  /* font sedikit turun */
+  .sImlek{ font-size:10.2px; padding:6px 10px; }
+  .sS{ font-size:10.1px; margin-bottom:8px; }
+  .sK b{ font-size:12px; }
+
+  /* tombol sedikit lebih compact */
+  .sBtn{ padding:8px 10px; font-size:10.2px; }
+  .sClose{ padding:8px 14px; font-size:10.6px; }
 }
 
+/* device super kecil */
+@media(max-width:380px){
+  .sW{ width:min(280px, 90vw); max-height:84vh; }
+  .sI{ max-height:28vh; }
+}
+
+/* reduce motion */
 @media (prefers-reduced-motion: reduce){
-  .sC:before,.sC:after,.sBtn,.sBtn:before{ animation:none !important; }
+  .sC:before,.sC:after,.sBtn,.sBtn:before,.sBtn:after,.sClose,.sClose:before,.sClose:after{ animation:none !important; }
 }
 `;
   document.head.appendChild(style);
@@ -292,7 +366,6 @@ const renderHTML = () => `
     </div>
 
     <div class="sC">
-      <!-- .sT sengaja tidak dipakai (atau akan hide oleh CSS) -->
       <div class="sImlek">${CONFIG.DATE_TEXT}</div>
       <div class="sS">JOIN KOMUNITAS MAUSLOT PRIORITAS RASAKAN MANFAATNYA</div>
 
