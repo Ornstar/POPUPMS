@@ -46,6 +46,22 @@ const injectCSS = () => {
   --bg3:#01093a;
 }
 
+/* ==============================
+   ✅ ANIMASI SAAT POPUP MUNCUL
+   ============================== */
+@keyframes ovFadeIn{ from{opacity:0} to{opacity:1} }
+@keyframes cardEnter{
+  0%   { transform: translate3d(0,14px,0) scale(.92); opacity:0; }
+  60%  { transform: translate3d(0,-2px,0) scale(1.01); opacity:1; }
+  100% { transform: translate3d(0,0,0) scale(1); opacity:1; }
+}
+@keyframes contentRise{ from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
+
+#${CONFIG.OVERLAY_ID}.ms-enter{ animation: ovFadeIn .28s ease-out both; }
+#${CONFIG.OVERLAY_ID}.ms-enter .sW{ animation: cardEnter .55s cubic-bezier(.2,.9,.2,1) both; }
+#${CONFIG.OVERLAY_ID}.ms-enter .sC{ animation: contentRise .45s ease-out .10s both; }
+
+/* overlay backdrop */
 #${CONFIG.OVERLAY_ID}{
   position:fixed; inset:0; z-index:2147483647;
   display:flex; align-items:center; justify-content:center;
@@ -60,6 +76,7 @@ const injectCSS = () => {
   backdrop-filter: blur(2px);
 }
 
+/* card */
 .sW{
   width:min(360px, 92vw);
   max-height:92vh;
@@ -88,6 +105,7 @@ const injectCSS = () => {
   pointer-events:none;
 }
 
+/* IMAGE */
 .sIW{padding:0;background:transparent;text-align:center; flex:0 0 auto;}
 .sI{
   width:100%;
@@ -97,6 +115,7 @@ const injectCSS = () => {
   object-fit:contain;
 }
 
+/* CONTENT */
 .sC{
   position:relative;
   overflow:hidden;
@@ -149,8 +168,10 @@ const injectCSS = () => {
 }
 .sC > *{ position:relative; z-index:1; }
 
+/* hide title */
 .sT{ display:none !important; }
 
+/* pill */
 .sImlek{
   margin:6px 0 10px;
   text-align:center;
@@ -172,6 +193,7 @@ const injectCSS = () => {
   opacity:.95;
 }
 
+/* grid */
 .sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sK{
   padding:10px;
@@ -188,7 +210,7 @@ const injectCSS = () => {
 .sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
 
 /* ==============================
-   ✅ FIX: BUTTON SHINE PASTI KELIHATAN (ANTI OVERRIDE)
+   ✅ BUTTON SHINE (yang sudah berhasil)
    ============================== */
 @keyframes shinePass{
   0%   { transform: translateX(-210%) skewX(-20deg); }
@@ -199,7 +221,6 @@ const injectCSS = () => {
   50%   { box-shadow: 0 12px 20px rgba(0,0,0,.38), 0 0 26px rgba(255,255,255,.18); }
 }
 
-/* selector kuat + !important biar ga dipatahkan css theme */
 #${CONFIG.OVERLAY_ID} .sBtn,
 #${CONFIG.OVERLAY_ID} .sClose{
   position:relative !important;
@@ -208,7 +229,6 @@ const injectCSS = () => {
   transform: translateZ(0);
 }
 
-/* kilau tebal + terang (pasti kelihatan) */
 #${CONFIG.OVERLAY_ID} .sBtn::before,
 #${CONFIG.OVERLAY_ID} .sClose::before{
   content:"";
@@ -218,8 +238,6 @@ const injectCSS = () => {
   width:78%;
   height:260%;
   border-radius:999px;
-
-  /* putih terang + sedikit biru */
   background: linear-gradient(
     90deg,
     rgba(255,255,255,0) 0%,
@@ -228,19 +246,15 @@ const injectCSS = () => {
     rgba(255,255,255,.98) 60%,
     rgba(255,255,255,0) 100%
   );
-
   opacity:.95;
   filter: blur(.4px) drop-shadow(0 0 10px rgba(255,255,255,.28));
   mix-blend-mode: screen;
-
   pointer-events:none;
   z-index:5;
-
   animation: shinePass 1.35s linear infinite !important;
   will-change: transform;
 }
 
-/* tombol Livechat / Telegram */
 #${CONFIG.OVERLAY_ID} .sBtn{
   display:block;
   margin-top:6px;
@@ -262,7 +276,6 @@ const injectCSS = () => {
   animation: glowPulse 2.0s ease-in-out infinite !important;
 }
 
-/* tombol tutup */
 .sCloseWrap{display:flex;justify-content:center}
 #${CONFIG.OVERLAY_ID} .sClose{
   margin-top:12px;
@@ -303,7 +316,6 @@ const injectCSS = () => {
   .sBtn{ padding:8px 10px; font-size:10.2px; }
   .sClose{ padding:8px 14px; font-size:10.6px; }
 }
-
 @media(max-width:380px){
   .sW{ width:min(280px, 90vw); max-height:84vh; }
   .sI{ max-height:28vh; }
@@ -324,7 +336,7 @@ const injectCSS = () => {
 };
 
 const renderHTML = () => `
-<div id="${CONFIG.OVERLAY_ID}">
+<div id="${CONFIG.OVERLAY_ID}" class="ms-enter">
   <div class="sW">
     <div class="sIW">
       <img class="sI" src="${CONFIG.IMAGE_URL}" alt="">
@@ -386,6 +398,10 @@ const showOverlay = () => {
   document.body.insertAdjacentHTML("beforeend", renderHTML());
   isShown = true;
 
+  // optional: hapus class ms-enter setelah animasi selesai (biar DOM bersih)
+  const ov = document.getElementById(CONFIG.OVERLAY_ID);
+  if (ov) setTimeout(() => ov.classList.remove("ms-enter"), 700);
+
   document.getElementById(CONFIG.CLOSE_ID).onclick = closeOverlay;
   document.getElementById(CONFIG.OVERLAY_ID).onclick = (e)=>{
     if(e.target.id === CONFIG.OVERLAY_ID) closeOverlay();
@@ -418,37 +434,5 @@ addEventListener("hashchange",()=>setTimeout(tick,80));
 document.readyState==="loading"
   ? addEventListener("DOMContentLoaded",tick)
   : tick();
-
-  /* ==============================
-   ✅ ANIMASI SAAT POPUP MUNCUL
-   ============================== */
-@keyframes ovFadeIn{
-  from { opacity:0; }
-  to   { opacity:1; }
-}
-@keyframes cardEnter{
-  0%   { transform: translate3d(0,14px,0) scale(.92); opacity:0; }
-  60%  { transform: translate3d(0,-2px,0) scale(1.01); opacity:1; }
-  100% { transform: translate3d(0,0,0) scale(1); opacity:1; }
-}
-@keyframes contentRise{
-  from { transform: translateY(10px); opacity:0; }
-  to   { transform: translateY(0); opacity:1; }
-}
-
-/* overlay fade */
-#MAUSLOTOv.ms-enter{
-  animation: ovFadeIn .28s ease-out both;
-}
-
-/* card masuk */
-#MAUSLOTOv.ms-enter .sW{
-  animation: cardEnter .55s cubic-bezier(.2,.9,.2,1) both;
-}
-
-/* isi konten naik halus */
-#MAUSLOTOv.ms-enter .sC{
-  animation: contentRise .45s ease-out .10s both;
-}
 
 })();
