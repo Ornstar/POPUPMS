@@ -419,4 +419,36 @@ document.readyState==="loading"
   ? addEventListener("DOMContentLoaded",tick)
   : tick();
 
+  /* ==============================
+   ✅ ANIMASI SAAT POPUP MUNCUL
+   ============================== */
+@keyframes ovFadeIn{
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+@keyframes cardEnter{
+  0%   { transform: translate3d(0,14px,0) scale(.92); opacity:0; }
+  60%  { transform: translate3d(0,-2px,0) scale(1.01); opacity:1; }
+  100% { transform: translate3d(0,0,0) scale(1); opacity:1; }
+}
+@keyframes contentRise{
+  from { transform: translateY(10px); opacity:0; }
+  to   { transform: translateY(0); opacity:1; }
+}
+
+/* overlay fade */
+#MAUSLOTOv.ms-enter{
+  animation: ovFadeIn .28s ease-out both;
+}
+
+/* card masuk */
+#MAUSLOTOv.ms-enter .sW{
+  animation: cardEnter .55s cubic-bezier(.2,.9,.2,1) both;
+}
+
+/* isi konten naik halus */
+#MAUSLOTOv.ms-enter .sC{
+  animation: contentRise .45s ease-out .10s both;
+}
+
 })();
