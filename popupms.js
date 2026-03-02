@@ -46,6 +46,7 @@ const injectCSS = () => {
   --bg3:#01093a;
 }
 
+/* overlay backdrop */
 #${CONFIG.OVERLAY_ID}{
   position:fixed; inset:0; z-index:2147483647;
   display:flex; align-items:center; justify-content:center;
@@ -60,6 +61,7 @@ const injectCSS = () => {
   backdrop-filter: blur(2px);
 }
 
+/* card */
 .sW{
   width:min(360px, 92vw);
   max-height:92vh;
@@ -88,6 +90,7 @@ const injectCSS = () => {
   pointer-events:none;
 }
 
+/* IMAGE */
 .sIW{padding:0;background:transparent;text-align:center; flex:0 0 auto;}
 .sI{
   width:100%;
@@ -97,6 +100,7 @@ const injectCSS = () => {
   object-fit:contain;
 }
 
+/* CONTENT */
 .sC{
   position:relative;
   overflow:hidden;
@@ -105,7 +109,7 @@ const injectCSS = () => {
   isolation:isolate;
 }
 
-/* FX background biru */
+/* FX background area biru */
 @keyframes mistFlow{
   0%   { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
   50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.75; }
@@ -149,8 +153,10 @@ const injectCSS = () => {
 }
 .sC > *{ position:relative; z-index:1; }
 
+/* hide title */
 .sT{ display:none !important; }
 
+/* pill */
 .sImlek{
   margin:6px 0 10px;
   text-align:center;
@@ -172,6 +178,7 @@ const injectCSS = () => {
   opacity:.95;
 }
 
+/* grid */
 .sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sK{
   padding:10px;
@@ -188,7 +195,7 @@ const injectCSS = () => {
 .sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
 
 /* ==============================
-   ✅ BUTTON: CAHAYA LEWAT SAMPING (LEFT -> RIGHT)
+   ✅ BUTTON: CAHAYA LEWAT SAMPING (LIGHT SWEEP)
    ============================== */
 @keyframes lightSweep{
   0%   { transform: translateX(-160%) skewX(-20deg); opacity:0; }
@@ -196,37 +203,20 @@ const injectCSS = () => {
   32%  { opacity:0; }
   100% { transform: translateX(220%) skewX(-20deg); opacity:0; }
 }
+@keyframes glowPulse{
+  0%,100%{ box-shadow: 0 10px 18px rgba(0,0,0,.35), 0 0 14px rgba(30,91,255,.18); }
+  50%   { box-shadow: 0 12px 20px rgba(0,0,0,.38), 0 0 22px rgba(30,91,255,.32); }
+}
 
-/* tombol punya layer kilau */
-.sBtn, .sClose{
+.sBtn,
+.sClose{
   position:relative;
   overflow:hidden;
+  isolation:isolate;
   transform: translateZ(0);
-  will-change: transform;
 }
 
-/* kilau yang lewat */
-.sBtn:before, .sClose:before{
-  content:"";
-  position:absolute;
-  top:-45%;
-  left:-65%;
-  width:55%;
-  height:210%;
-  background:linear-gradient(
-    90deg,
-    transparent 0%,
-    rgba(255,255,255,.92) 50%,
-    transparent 100%
-  );
-  transform: skewX(-20deg);
-  opacity:0;
-  animation: lightSweep 2.4s ease-in-out infinite;
-  pointer-events:none;
-  z-index:2;
-}
-
-/* tombol utama */
+/* tombol Livechat / Telegram */
 .sBtn{
   display:block;
   margin-top:6px;
@@ -243,8 +233,31 @@ const injectCSS = () => {
     linear-gradient(180deg, #2f7bff, #0a2b8f);
   border:1px solid rgba(255,213,107,.90);
   box-shadow:
-    0 12px 18px rgba(0,0,0,.30),
-    0 0 18px rgba(30,91,255,.22);
+    0 10px 18px rgba(0,0,0,.35),
+    0 0 18px rgba(30,91,255,.25);
+  animation: glowPulse 2.2s ease-in-out infinite;
+}
+
+/* cahaya lewat kiri -> kanan */
+.sBtn::before,
+.sClose::before{
+  content:"";
+  position:absolute;
+  top:-55%;
+  left:-70%;
+  width:58%;
+  height:220%;
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.95) 50%,
+    transparent 100%
+  );
+  opacity:0;
+  transform: skewX(-20deg);
+  pointer-events:none;
+  z-index:2;
+  animation: lightSweep 2.6s ease-in-out infinite;
 }
 
 /* tombol tutup */
@@ -263,27 +276,36 @@ const injectCSS = () => {
     linear-gradient(180deg, #1e6e9b, #0a3c5f);
   border:2px solid rgba(255,213,107,.90);
   box-shadow:
-    0 12px 18px rgba(0,0,0,.30),
-    0 0 18px rgba(255,213,107,.16);
+    0 10px 18px rgba(0,0,0,.35),
+    0 0 18px rgba(255,213,107,.18);
+  animation: glowPulse 2.2s ease-in-out infinite;
 }
 
+/* footer */
 .sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 
-/* ✅ MOBILE DIPERKECIL */
+/* ==============================
+   ✅ MOBILE DIPERKECIL (kotak kuning)
+   ============================== */
 @media(max-width:640px){
   #${CONFIG.OVERLAY_ID}{ padding:8px; }
+
   .sW{
     width:min(300px, 88vw);
     max-height:86vh;
     border-radius:14px;
   }
+
   .sI{ max-height:30vh; }
   .sC{ padding:9px; }
+
   .sG{ gap:8px; }
   .sK{ padding:9px; border-radius:12px; }
+
   .sImlek{ font-size:10.2px; padding:6px 10px; }
   .sS{ font-size:10.1px; margin-bottom:8px; }
   .sK b{ font-size:12px; }
+
   .sBtn{ padding:8px 10px; font-size:10.2px; }
   .sClose{ padding:8px 14px; font-size:10.6px; }
 }
@@ -295,7 +317,7 @@ const injectCSS = () => {
 
 /* reduce motion */
 @media (prefers-reduced-motion: reduce){
-  .sC:before,.sC:after,.sBtn:before,.sClose:before{ animation:none !important; }
+  .sC:before,.sC:after,.sBtn,.sBtn:before,.sClose,.sClose:before{ animation:none !important; }
 }
 `;
   document.head.appendChild(style);
