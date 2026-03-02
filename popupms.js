@@ -28,7 +28,6 @@ const removeOverlay = () => {
   if (ov) ov.remove();
   isShown = false;
 
-  // pulihkan scroll
   document.documentElement.style.overflow = "";
   document.body.style.overflow = "";
 };
@@ -47,7 +46,6 @@ const injectCSS = () => {
   --bg3:#01093a;
 }
 
-/* overlay backdrop */
 #${CONFIG.OVERLAY_ID}{
   position:fixed; inset:0; z-index:2147483647;
   display:flex; align-items:center; justify-content:center;
@@ -62,7 +60,6 @@ const injectCSS = () => {
   backdrop-filter: blur(2px);
 }
 
-/* card */
 .sW{
   width:min(360px, 92vw);
   max-height:92vh;
@@ -91,7 +88,6 @@ const injectCSS = () => {
   pointer-events:none;
 }
 
-/* IMAGE */
 .sIW{padding:0;background:transparent;text-align:center; flex:0 0 auto;}
 .sI{
   width:100%;
@@ -101,16 +97,15 @@ const injectCSS = () => {
   object-fit:contain;
 }
 
-/* CONTENT */
 .sC{
   position:relative;
-  overflow:hidden;     /* ✅ no scroll */
+  overflow:hidden;
   padding:12px;
   flex:1 1 auto;
   isolation:isolate;
 }
 
-/* FX background area biru */
+/* FX background biru */
 @keyframes mistFlow{
   0%   { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
   50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.75; }
@@ -154,10 +149,8 @@ const injectCSS = () => {
 }
 .sC > *{ position:relative; z-index:1; }
 
-/* ✅ HAPUS JUDUL KOTAK MERAH SAJA */
 .sT{ display:none !important; }
 
-/* pill merah tetap ada */
 .sImlek{
   margin:6px 0 10px;
   text-align:center;
@@ -179,7 +172,6 @@ const injectCSS = () => {
   opacity:.95;
 }
 
-/* grid */
 .sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .sK{
   padding:10px;
@@ -196,32 +188,42 @@ const injectCSS = () => {
 .sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
 
 /* ==============================
-   ✅ BUTTON BLINK / KILAU BERGERAK (kotak merah)
-   - Berlaku untuk .sBtn (Livechat/Telegram) + .sClose (Tutup)
+   ✅ BUTTON: CAHAYA LEWAT SAMPING (LEFT -> RIGHT)
    ============================== */
-
-@keyframes btnFloat{
-  0%,100%{ transform: translateY(0) scale(1); }
-  50%{ transform: translateY(-2px) scale(1.02); }
-}
-@keyframes sweep{
-  0%   { transform: translateX(-140%) skewX(-18deg); opacity:0; }
-  10%  { opacity:.85; }
-  28%  { opacity:0; }
-  100% { transform: translateX(180%) skewX(-18deg); opacity:0; }
-}
-/* glow pinggir “blink” */
-@keyframes edgeBlink{
-  0%,100%{ filter: drop-shadow(0 0 0 rgba(255,213,107,0)); opacity:.65; }
-  50%    { filter: drop-shadow(0 0 10px rgba(255,213,107,.55)); opacity:1; }
+@keyframes lightSweep{
+  0%   { transform: translateX(-160%) skewX(-20deg); opacity:0; }
+  12%  { opacity:.95; }
+  32%  { opacity:0; }
+  100% { transform: translateX(220%) skewX(-20deg); opacity:0; }
 }
 
-.sBtn,
-.sClose{
+/* tombol punya layer kilau */
+.sBtn, .sClose{
   position:relative;
   overflow:hidden;
   transform: translateZ(0);
-  will-change: transform, filter;
+  will-change: transform;
+}
+
+/* kilau yang lewat */
+.sBtn:before, .sClose:before{
+  content:"";
+  position:absolute;
+  top:-45%;
+  left:-65%;
+  width:55%;
+  height:210%;
+  background:linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,.92) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  opacity:0;
+  animation: lightSweep 2.4s ease-in-out infinite;
+  pointer-events:none;
+  z-index:2;
 }
 
 /* tombol utama */
@@ -237,53 +239,12 @@ const injectCSS = () => {
   text-align:center;
   color:#fff;
   background:
-    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
-    linear-gradient(180deg, rgba(65,140,255,1), rgba(9,24,95,1));
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.25), transparent 45%),
+    linear-gradient(180deg, #2f7bff, #0a2b8f);
   border:1px solid rgba(255,213,107,.90);
   box-shadow:
-    0 12px 20px rgba(0,0,0,.32),
-    0 0 0 1px rgba(255,255,255,.10) inset,
-    0 -10px 18px rgba(0,0,0,.22) inset,
-    0 0 18px rgba(30,91,255,.18);
-  animation: btnFloat 2.4s ease-in-out infinite, edgeBlink 1.6s ease-in-out infinite;
-}
-
-/* kilau bergerak (blink sweep) */
-.sBtn:before,
-.sClose:before{
-  content:"";
-  position:absolute; top:-30%; left:0;
-  width:46%; height:180%;
-  background:linear-gradient(90deg, transparent 0%, rgba(255,255,255,.85) 50%, transparent 100%);
-  opacity:0;
-  pointer-events:none;
-  animation: sweep 2.6s ease-in-out infinite;
-}
-
-/* tambahan “blink” tipis yang jalan di pinggir */
-.sBtn:after,
-.sClose:after{
-  content:"";
-  position:absolute; inset:-2px;
-  border-radius:999px;
-  padding:2px;
-  background: conic-gradient(
-    from 0deg,
-    rgba(255,213,107,0) 0%,
-    rgba(255,213,107,.95) 12%,
-    rgba(30,91,255,.85) 25%,
-    rgba(255,255,255,.95) 35%,
-    rgba(255,213,107,0) 55%,
-    rgba(255,213,107,0) 100%
-  );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-  opacity:.0;
-  pointer-events:none;
-  animation: edgeBlink 1.6s ease-in-out infinite;
+    0 12px 18px rgba(0,0,0,.30),
+    0 0 18px rgba(30,91,255,.22);
 }
 
 /* tombol tutup */
@@ -298,53 +259,35 @@ const injectCSS = () => {
   cursor:pointer;
   color:#fff;
   background:
-    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.18), transparent 45%),
-    linear-gradient(180deg, rgba(30,110,155,1), rgba(10,60,95,1));
+    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
+    linear-gradient(180deg, #1e6e9b, #0a3c5f);
   border:2px solid rgba(255,213,107,.90);
   box-shadow:
     0 12px 18px rgba(0,0,0,.30),
-    0 0 0 1px rgba(255,255,255,.10) inset,
-    0 0 18px rgba(255,213,107,.14);
-  animation: edgeBlink 1.6s ease-in-out infinite;
+    0 0 18px rgba(255,213,107,.16);
 }
 
-/* footer */
 .sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
 
-/* ==============================
-   ✅ MOBILE DIPERKECIL (kotak kuning)
-   ============================== */
+/* ✅ MOBILE DIPERKECIL */
 @media(max-width:640px){
   #${CONFIG.OVERLAY_ID}{ padding:8px; }
-
-  /* card lebih kecil */
   .sW{
     width:min(300px, 88vw);
     max-height:86vh;
     border-radius:14px;
   }
-
-  /* gambar lebih pendek biar ga nutup layar */
   .sI{ max-height:30vh; }
-
-  /* padding dipersempit */
   .sC{ padding:9px; }
-
-  /* grid gap & card isi lebih rapat */
   .sG{ gap:8px; }
   .sK{ padding:9px; border-radius:12px; }
-
-  /* font sedikit turun */
   .sImlek{ font-size:10.2px; padding:6px 10px; }
   .sS{ font-size:10.1px; margin-bottom:8px; }
   .sK b{ font-size:12px; }
-
-  /* tombol sedikit lebih compact */
   .sBtn{ padding:8px 10px; font-size:10.2px; }
   .sClose{ padding:8px 14px; font-size:10.6px; }
 }
 
-/* device super kecil */
 @media(max-width:380px){
   .sW{ width:min(280px, 90vw); max-height:84vh; }
   .sI{ max-height:28vh; }
@@ -352,7 +295,7 @@ const injectCSS = () => {
 
 /* reduce motion */
 @media (prefers-reduced-motion: reduce){
-  .sC:before,.sC:after,.sBtn,.sBtn:before,.sBtn:after,.sClose,.sClose:before,.sClose:after{ animation:none !important; }
+  .sC:before,.sC:after,.sBtn:before,.sClose:before{ animation:none !important; }
 }
 `;
   document.head.appendChild(style);
@@ -414,7 +357,6 @@ const closeOverlay = () => {
 const showOverlay = () => {
   if (isShown || isClosed) return;
 
-  // kunci scroll background
   document.documentElement.style.overflow = "hidden";
   document.body.style.overflow = "hidden";
 
