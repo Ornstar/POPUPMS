@@ -1,438 +1,245 @@
 (() => {
+"use strict";
 
-const CONFIG = {
-  LIVECHAT_URL: "https://urlmsshorten.com/livechat-mauslot",
-  TELE_URL: "https://urlmsshorten.com/group-tele-official",
-  IMAGE_URL: "https://i.postimg.cc/66Vg5Kbr/20260301-075640.jpg",
-  STYLE_ID: "MAUSLOT_style_RAMADHAN_KEEP_PILL_NOSCROLL_V1",
-  OVERLAY_ID: "MAUSLOTOv",
-  CLOSE_ID: "MAUSLOTClose",
-  DATE_TEXT: "Selamat Menyambut Bulan Suci RAMADHAN",
-};
+/* ================= FILTER (HOME ONLY) ================= */
 
-let isShown = false;
-let isClosed = false;
-let wasHome = null;
+const currentURL = window.location.href.toLowerCase();
+const isHome = currentURL.includes("home") || currentURL.endsWith("/");
+if (!isHome) return;
 
-const isHomePage = () => {
-  const p = (location.pathname || "").toLowerCase();
-  const h = (location.hash || "").toLowerCase();
-  return (
-    p === "/" || p === "" || p.includes("home") || p.includes("index") ||
-    h === "#/" || h === "#home" || h.includes("home")
-  );
-};
+/* ================= CONFIG ================= */
 
-const removeOverlay = () => {
-  const ov = document.getElementById(CONFIG.OVERLAY_ID);
-  if (ov) ov.remove();
-  isShown = false;
+const BTN1_URL = "https://urlmsshorten.com/whatsapp-official";
+const BTN2_URL = "https://urlmsshorten.com/mauslot-spektakuler";
+const BTN3_URL = "https://urlmsshorten.com/group-tele-official";
+const BTN4_URL = "https://urlmsshorten.com/apk-mauslot";
 
-  document.documentElement.style.overflow = "";
-  document.body.style.overflow = "";
-};
+const SLIDES = [
+"https://i.postimg.cc/WpmwdXps/777slotgacorrr.avif",
+"https://i.postimg.cc/ZYPxWVYW/POP-UP.png",
+"https://i.postimg.cc/nLZ0RgLc/MS038-Feed-1080x1080.jpg",
+"https://i.postimg.cc/wvnxHhPC/MS047-POPUP.jpg"
+];
 
-const injectCSS = () => {
-  if (document.getElementById(CONFIG.STYLE_ID)) return;
+/* ================= STYLE ================= */
 
-  const style = document.createElement("style");
-  style.id = CONFIG.STYLE_ID;
-  style.textContent = `
-:root{
-  --gold:#ffd56b;
-  --gold2:#ffedb6;
-  --bg1:#000;
-  --bg2:#010f69;
-  --bg3:#01093a;
+function injectStyle(){
+
+if(document.getElementById("popup_mauslot")) return;
+
+const style = document.createElement("style");
+style.id = "popup_mauslot";
+
+style.textContent = `
+
+@keyframes pulse{
+0%{transform:scale(1)}
+50%{transform:scale(1.2)}
+100%{transform:scale(1)}
 }
 
-/* ==============================
-   ✅ ANIMASI SAAT POPUP MUNCUL
-   ============================== */
-@keyframes ovFadeIn{ from{opacity:0} to{opacity:1} }
-@keyframes cardEnter{
-  0%   { transform: translate3d(0,14px,0) scale(.92); opacity:0; }
-  60%  { transform: translate3d(0,-2px,0) scale(1.01); opacity:1; }
-  100% { transform: translate3d(0,0,0) scale(1); opacity:1; }
-}
-@keyframes contentRise{ from{transform:translateY(10px);opacity:0} to{transform:translateY(0);opacity:1} }
-
-#${CONFIG.OVERLAY_ID}.ms-enter{ animation: ovFadeIn .28s ease-out both; }
-#${CONFIG.OVERLAY_ID}.ms-enter .sW{ animation: cardEnter .55s cubic-bezier(.2,.9,.2,1) both; }
-#${CONFIG.OVERLAY_ID}.ms-enter .sC{ animation: contentRise .45s ease-out .10s both; }
-
-/* overlay backdrop */
-#${CONFIG.OVERLAY_ID}{
-  position:fixed; inset:0; z-index:2147483647;
-  display:flex; align-items:center; justify-content:center;
-  padding:12px;
-  overflow:hidden;
-  overscroll-behavior:none;
-  background:
-    radial-gradient(900px 520px at 50% 45%, rgba(255,213,107,.14), transparent 60%),
-    radial-gradient(800px 520px at 50% 60%, rgba(30,91,255,.12), transparent 62%),
-    rgba(0,0,0,.62);
-  -webkit-backdrop-filter: blur(2px);
-  backdrop-filter: blur(2px);
+@keyframes shineMove{
+0%{left:-120%}
+100%{left:120%}
 }
 
-/* card */
-.sW{
-  width:min(360px, 92vw);
-  max-height:92vh;
-  display:flex;
-  flex-direction:column;
-  border-radius:18px;
-  overflow:hidden;
-  position:relative;
-  background:
-    radial-gradient(120% 90% at 50% -10%, rgba(255,213,107,.16), transparent 58%),
-    radial-gradient(90% 70% at 18% 120%, rgba(30,91,255,.14), transparent 60%),
-    linear-gradient(180deg,var(--bg1),var(--bg2),var(--bg3));
-  border:1px solid rgba(255,213,107,.65);
-  box-shadow:
-    0 18px 60px rgba(0,0,0,.70),
-    0 0 0 1px rgba(255,255,255,.06) inset,
-    0 0 40px rgba(255,213,107,.12);
-  color:#fff;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-}
-.sW:before{
-  content:"";
-  position:absolute; inset:8px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.06);
-  pointer-events:none;
+@keyframes sparkMove{
+0%{transform:translateY(0);opacity:.5;}
+100%{transform:translateY(-20px);opacity:0;}
 }
 
-/* IMAGE */
-.sIW{padding:0;background:transparent;text-align:center; flex:0 0 auto;}
-.sI{
-  width:100%;
-  height:auto;
-  display:block;
-  max-height:42vh;
-  object-fit:contain;
+/* POPUP */
+#popup_final{
+position:fixed;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
+z-index:999999;
+font-family:Arial;
 }
 
-/* CONTENT */
-.sC{
-  position:relative;
-  overflow:hidden;
-  padding:12px;
-  flex:1 1 auto;
-  isolation:isolate;
+/* CARD */
+#popup_final .card{
+width:360px;
+max-width:92vw;
+background:#0b1a3a; /* NAVY */
+border-radius:20px;
+overflow:hidden;
+box-shadow:0 20px 60px rgba(0,0,0,.9);
 }
 
-/* FX background area biru */
-@keyframes mistFlow{
-  0%   { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
-  50%  { transform: translate3d(16px, -8px, 0) scale(1.10); opacity:.75; }
-  100% { transform: translate3d(-14px, 6px, 0) scale(1.06); opacity:.40; }
-}
-@keyframes sparkleFloat{
-  0%   { transform: translate3d(0, 0, 0); opacity:.28; }
-  45%  { transform: translate3d(10px, -12px, 0); opacity:.60; }
-  100% { transform: translate3d(-8px, -26px, 0); opacity:.28; }
-}
-.sC:before{
-  content:"";
-  position:absolute; inset:-80px;
-  z-index:0; pointer-events:none;
-  background:
-    radial-gradient(420px 300px at 14% 30%, rgba(255,255,255,.14), transparent 72%),
-    radial-gradient(520px 360px at 85% 18%, rgba(255,255,255,.10), transparent 74%),
-    radial-gradient(560px 400px at 50% 72%, rgba(255,255,255,.12), transparent 76%),
-    radial-gradient(460px 330px at 88% 88%, rgba(255,255,255,.08), transparent 76%);
-  filter: blur(18px);
-  mix-blend-mode: screen;
-  opacity:.75;
-  animation: mistFlow 7.8s ease-in-out infinite;
-}
-.sC:after{
-  content:"";
-  position:absolute; inset:-50px;
-  z-index:0; pointer-events:none;
-  background:
-    radial-gradient(circle at 10% 20%, rgba(255,255,255,.85) 0 1.1px, transparent 2.6px),
-    radial-gradient(circle at 22% 62%, rgba(255,255,255,.55) 0 1px,   transparent 2.4px),
-    radial-gradient(circle at 35% 38%, rgba(255,255,255,.70) 0 1px,  transparent 2.5px),
-    radial-gradient(circle at 48% 70%, rgba(255,255,255,.50) 0 1px,  transparent 2.4px),
-    radial-gradient(circle at 58% 28%, rgba(255,255,255,.80) 0 1.1px, transparent 2.6px),
-    radial-gradient(circle at 72% 56%, rgba(255,255,255,.60) 0 1px,  transparent 2.4px),
-    radial-gradient(circle at 84% 35%, rgba(255,255,255,.70) 0 1px,  transparent 2.5px),
-    radial-gradient(circle at 92% 74%, rgba(255,255,255,.50) 0 1px,  transparent 2.4px);
-  filter: blur(.25px);
-  opacity:.55;
-  animation: sparkleFloat 6.2s ease-in-out infinite;
-}
-.sC > *{ position:relative; z-index:1; }
-
-/* hide title */
-.sT{ display:none !important; }
-
-/* pill */
-.sImlek{
-  margin:6px 0 10px;
-  text-align:center;
-  font-size:10.8px;
-  font-weight:900;
-  letter-spacing:.25px;
-  color:var(--gold2);
-  padding:7px 12px;
-  border-radius:999px;
-  background:linear-gradient(180deg, rgba(160,0,0,.72), rgba(120,0,0,.55));
-  border:1px solid rgba(255,213,107,.50);
-  box-shadow:0 8px 18px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
-.sS{
-  text-align:center;
-  font-size:10.5px;
-  margin-bottom:10px;
-  color:#d6e3ff;
-  opacity:.95;
+/* BANNER */
+#popup_final .banner{
+aspect-ratio:4/4;
+overflow:hidden;
 }
 
-/* grid */
-.sG{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.sK{
-  padding:10px;
-  border-radius:14px;
-  text-align:center;
-  font-size:10.5px;
-  background:
-    radial-gradient(120% 80% at 50% -15%, rgba(255,255,255,.10), transparent 58%),
-    linear-gradient(180deg, rgba(9,36,92,.72), rgba(5,20,60,.68));
-  border:1px solid rgba(255,213,107,.30);
-  box-shadow:0 10px 22px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.06) inset;
-}
-.sK .sKTitle{display:block;font-weight:900;letter-spacing:.5px}
-.sK b{display:block;color:var(--gold);margin:4px 0 6px;font-size:12.5px;font-weight:900}
-
-/* ==============================
-   ✅ BUTTON SHINE (yang sudah berhasil)
-   ============================== */
-@keyframes shinePass{
-  0%   { transform: translateX(-210%) skewX(-20deg); }
-  100% { transform: translateX(240%) skewX(-20deg); }
-}
-@keyframes glowPulse{
-  0%,100%{ box-shadow: 0 10px 18px rgba(0,0,0,.35), 0 0 16px rgba(255,255,255,.10); }
-  50%   { box-shadow: 0 12px 20px rgba(0,0,0,.38), 0 0 26px rgba(255,255,255,.18); }
+#popup_final .slides{
+display:flex;
+height:100%;
+transition:transform .5s ease;
 }
 
-#${CONFIG.OVERLAY_ID} .sBtn,
-#${CONFIG.OVERLAY_ID} .sClose{
-  position:relative !important;
-  overflow:hidden !important;
-  isolation:isolate;
-  transform: translateZ(0);
+#popup_final .slides img{
+width:100%;
+height:100%;
+object-fit:contain;
+flex-shrink:0;
 }
 
-#${CONFIG.OVERLAY_ID} .sBtn::before,
-#${CONFIG.OVERLAY_ID} .sClose::before{
-  content:"";
-  position:absolute;
-  top:-60%;
-  left:-80%;
-  width:78%;
-  height:260%;
-  border-radius:999px;
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,.98) 45%,
-    rgba(160,210,255,.85) 52%,
-    rgba(255,255,255,.98) 60%,
-    rgba(255,255,255,0) 100%
-  );
-  opacity:.95;
-  filter: blur(.4px) drop-shadow(0 0 10px rgba(255,255,255,.28));
-  mix-blend-mode: screen;
-  pointer-events:none;
-  z-index:5;
-  animation: shinePass 1.35s linear infinite !important;
-  will-change: transform;
+/* BUTTONS */
+#popup_final .buttons{
+padding:16px;
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
 }
 
-#${CONFIG.OVERLAY_ID} .sBtn{
-  display:block;
-  margin-top:6px;
-  padding:9px 10px;
-  border-radius:999px;
-  font-size:10.5px;
-  font-weight:900;
-  letter-spacing:.35px;
-  text-decoration:none;
-  text-align:center;
-  color:#fff;
-  background:
-    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.25), transparent 45%),
-    linear-gradient(180deg, #2f7bff, #0a2b8f);
-  border:1px solid rgba(255,213,107,.90);
-  box-shadow:
-    0 10px 18px rgba(0,0,0,.35),
-    0 0 18px rgba(30,91,255,.25);
-  animation: glowPulse 2.0s ease-in-out infinite !important;
+/* BUTTON NAVY GOLD */
+#popup_final .btn,
+#popup_final .close{
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+height:42px;
+border-radius:40px;
+font-size:11px;
+font-weight:900;
+color:#ffffff;
+text-decoration:none;
+
+/* NAVY + GOLD */
+background:linear-gradient(180deg,#1e3a8a,#1e40af,#1d4ed8,#0f172a);
+
+border:1px solid #3b82f6;
+cursor:pointer;
+overflow:hidden;
+
+/* TEXT GLOW */
+text-shadow:
+0 1px 2px rgba(0,0,0,.6),
+0 0 6px rgba(59,130,246,.8);
+
+/* SHADOW */
+box-shadow:
+inset 0 2px 0 rgba(255,255,255,.2),
+inset 0 -3px 6px rgba(0,0,0,.6),
+0 0 12px rgba(59,130,246,.5);
 }
 
-.sCloseWrap{display:flex;justify-content:center}
-#${CONFIG.OVERLAY_ID} .sClose{
-  margin-top:12px;
-  padding:9px 16px;
-  border-radius:999px;
-  font-size:11px;
-  font-weight:900;
-  letter-spacing:.35px;
-  cursor:pointer;
-  color:#fff;
-  background:
-    radial-gradient(120% 120% at 30% 15%, rgba(255,255,255,.22), transparent 45%),
-    linear-gradient(180deg, #1e6e9b, #0a3c5f);
-  border:2px solid rgba(255,213,107,.90);
-  box-shadow:
-    0 10px 18px rgba(0,0,0,.35),
-    0 0 18px rgba(255,213,107,.18);
-  animation: glowPulse 2.0s ease-in-out infinite !important;
+/* SHINE */
+#popup_final .btn::before,
+#popup_final .close::before{
+content:"";
+position:absolute;
+top:-50%;
+left:-120%;
+width:120%;
+height:200%;
+background:linear-gradient(120deg,transparent,rgba(255,255,255,.8),transparent);
+animation:shineMove 3s infinite;
 }
 
-.sF{margin-top:10px;text-align:center;font-size:10px;opacity:.85;color:#e9f0ff}
-
-/* MOBILE DIPERKECIL */
-@media(max-width:640px){
-  #${CONFIG.OVERLAY_ID}{ padding:8px; }
-  .sW{
-    width:min(300px, 88vw);
-    max-height:86vh;
-    border-radius:14px;
-  }
-  .sI{ max-height:30vh; }
-  .sC{ padding:9px; }
-  .sG{ gap:8px; }
-  .sK{ padding:9px; border-radius:12px; }
-  .sImlek{ font-size:10.2px; padding:6px 10px; }
-  .sS{ font-size:10.1px; margin-bottom:8px; }
-  .sK b{ font-size:12px; }
-  .sBtn{ padding:8px 10px; font-size:10.2px; }
-  .sClose{ padding:8px 14px; font-size:10.6px; }
-}
-@media(max-width:380px){
-  .sW{ width:min(280px, 90vw); max-height:84vh; }
-  .sI{ max-height:28vh; }
+/* TUTUP */
+#popup_final .close{
+grid-column:span 2;
+background:linear-gradient(180deg,#1e40af,#1d4ed8,#2563eb,#0f172a);
 }
 
-/* reduce motion */
-@media (prefers-reduced-motion: reduce){
-  .sC:before,.sC:after,
-  #${CONFIG.OVERLAY_ID} .sBtn,
-  #${CONFIG.OVERLAY_ID} .sBtn::before,
-  #${CONFIG.OVERLAY_ID} .sClose,
-  #${CONFIG.OVERLAY_ID} .sClose::before{
-    animation:none !important;
-  }
+/* SPARK */
+#popup_final .close::after{
+content:"";
+position:absolute;
+inset:0;
+background:
+radial-gradient(2px 2px at 20% 70%, rgba(59,130,246,.9), transparent),
+radial-gradient(2px 2px at 60% 40%, rgba(147,197,253,.8), transparent);
+animation:sparkMove 2s linear infinite;
 }
+
+/* HOT */
+#popup_final .btnWrap{
+position:relative;
+}
+
+#popup_final .hot{
+position:absolute;
+top:-10px;
+right:-6px;
+background:#ef4444;
+color:#fff;
+font-size:9px;
+padding:4px 6px;
+border-radius:6px;
+z-index:9999;
+animation:pulse 1s infinite;
+}
+
 `;
-  document.head.appendChild(style);
-};
 
-const renderHTML = () => `
-<div id="${CONFIG.OVERLAY_ID}" class="ms-enter">
-  <div class="sW">
-    <div class="sIW">
-      <img class="sI" src="${CONFIG.IMAGE_URL}" alt="">
-    </div>
+document.head.appendChild(style);
+}
 
-    <div class="sC">
-      <div class="sImlek">${CONFIG.DATE_TEXT}</div>
-      <div class="sS">JOIN KOMUNITAS MAUSLOT PRIORITAS RASAKAN MANFAATNYA</div>
+/* ================= HTML ================= */
 
-      <div class="sG">
-        <div class="sK">
-          <span class="sKTitle">BONUS SAHUR</span>
-          <b>35%</b>
-          <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
-        </div>
+function buildHTML(){
 
-        <div class="sK">
-          <span class="sKTitle">BONUS NGABUBURIT</span>
-          <b>25%</b>
-          <a class="sBtn" href="${CONFIG.LIVECHAT_URL}" target="_blank" rel="noopener">Livechat</a>
-        </div>
+const slidesHTML = SLIDES.map(s=>`<img src="${s}">`).join("");
 
-        <div class="sK">
-          <span class="sKTitle">LUCKY WHEEL</span>
-          <b>MEMBER</b>
-          <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
-        </div>
+return `
+<div class="card">
 
-        <div class="sK">
-          <span class="sKTitle">LOYALTY POIN</span>
-          <b>AKTIF</b>
-          <a class="sBtn" href="${CONFIG.TELE_URL}" target="_blank" rel="noopener">Telegram</a>
-        </div>
-      </div>
+<div class="banner">
+<div class="slides">${slidesHTML}</div>
+</div>
 
-      <div class="sF">© MAUSLOT GROUP</div>
+<div class="buttons">
 
-      <div class="sCloseWrap">
-        <div class="sClose" id="${CONFIG.CLOSE_ID}">
-          KLIK DISINI UNTUK MENUTUP
-        </div>
-      </div>
-    </div>
-  </div>
-</div>`;
+<a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
+<a class="btn" href="${BTN2_URL}" target="_blank">LINK ANTI NAWALA</a>
 
-const closeOverlay = () => {
-  isClosed = true;
-  removeOverlay();
-};
+<div class="btnWrap">
+<span class="hot">HOT</span>
+<a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
+</div>
 
-const showOverlay = () => {
-  if (isShown || isClosed) return;
+<a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
 
-  document.documentElement.style.overflow = "hidden";
-  document.body.style.overflow = "hidden";
+<button class="close" id="closeBtn">TUTUP</button>
 
-  injectCSS();
-  document.body.insertAdjacentHTML("beforeend", renderHTML());
-  isShown = true;
+</div>
+</div>
+`;
+}
 
-  // optional: hapus class ms-enter setelah animasi selesai (biar DOM bersih)
-  const ov = document.getElementById(CONFIG.OVERLAY_ID);
-  if (ov) setTimeout(() => ov.classList.remove("ms-enter"), 700);
+/* ================= INIT ================= */
 
-  document.getElementById(CONFIG.CLOSE_ID).onclick = closeOverlay;
-  document.getElementById(CONFIG.OVERLAY_ID).onclick = (e)=>{
-    if(e.target.id === CONFIG.OVERLAY_ID) closeOverlay();
-  };
-};
+function init(){
 
-const tick = () => {
-  const home = isHomePage();
-  if (!home) {
-    isClosed = false;
-    removeOverlay();
-  } else {
-    if (wasHome === false || wasHome === null) isClosed = false;
-    showOverlay();
-  }
-  wasHome = home;
-};
+injectStyle();
 
-["pushState","replaceState"].forEach(fn=>{
-  const original = history[fn];
-  history[fn] = function(){
-    const ret = original.apply(this, arguments);
-    setTimeout(tick,80);
-    return ret;
-  };
+const wrap=document.createElement("div");
+wrap.id="popup_final";
+wrap.innerHTML=buildHTML();
+document.body.appendChild(wrap);
+
+/* SLIDER */
+const slides = wrap.querySelector(".slides");
+let index = 0;
+
+setInterval(()=>{
+index = (index + 1) % SLIDES.length;
+slides.style.transform = `translateX(-${index*100}%)`;
+},3000);
+
+/* CLOSE */
+document.getElementById("closeBtn").onclick=()=>wrap.remove();
+
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+setTimeout(init,800);
 });
-
-addEventListener("popstate",()=>setTimeout(tick,80));
-addEventListener("hashchange",()=>setTimeout(tick,80));
-document.readyState==="loading"
-  ? addEventListener("DOMContentLoaded",tick)
-  : tick();
 
 })();
