@@ -88,7 +88,7 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-/* BUTTON BIASA */
+/* BUTTON UTAMA */
 #popup_final .btn{
 position:relative;
 display:flex;
@@ -113,7 +113,7 @@ inset 0 -3px 6px rgba(0,0,0,.6),
 0 0 12px rgba(59,130,246,.5);
 }
 
-/* SHINE */
+/* SHINE BUTTON */
 #popup_final .btn::before{
 content:"";
 position:absolute;
@@ -138,17 +138,16 @@ border-radius:40px;
 font-size:11px;
 font-weight:900;
 color:#fff;
-text-decoration:none;
 
+/* MERAH PREMIUM */
 background:linear-gradient(180deg,
-#ffb3b3,
-#ff4d4d,
-#ff0000,
-#990000
+#ffb3b3 0%,
+#ff4d4d 30%,
+#ff0000 60%,
+#990000 100%
 );
 
 border:1px solid #ff4d4d;
-
 cursor:pointer;
 overflow:hidden;
 
