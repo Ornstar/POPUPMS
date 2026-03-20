@@ -41,11 +41,6 @@ style.textContent = `
 100%{left:120%}
 }
 
-@keyframes sparkMove{
-0%{transform:translateY(0);opacity:.5;}
-100%{transform:translateY(-20px);opacity:0;}
-}
-
 /* POPUP */
 #popup_final{
 position:fixed;
@@ -60,7 +55,7 @@ font-family:Arial;
 #popup_final .card{
 width:360px;
 max-width:92vw;
-background:#0b1a3a; /* NAVY */
+background:#0b1a3a;
 border-radius:20px;
 overflow:hidden;
 box-shadow:0 20px 60px rgba(0,0,0,.9);
@@ -93,9 +88,8 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-/* BUTTON NAVY GOLD */
-#popup_final .btn,
-#popup_final .close{
+/* BUTTON BIASA */
+#popup_final .btn{
 position:relative;
 display:flex;
 align-items:center;
@@ -107,19 +101,12 @@ font-weight:900;
 color:#ffffff;
 text-decoration:none;
 
-/* NAVY + GOLD */
 background:linear-gradient(180deg,#1e3a8a,#1e40af,#1d4ed8,#0f172a);
-
 border:1px solid #3b82f6;
+
 cursor:pointer;
 overflow:hidden;
 
-/* TEXT GLOW */
-text-shadow:
-0 1px 2px rgba(0,0,0,.6),
-0 0 6px rgba(59,130,246,.8);
-
-/* SHADOW */
 box-shadow:
 inset 0 2px 0 rgba(255,255,255,.2),
 inset 0 -3px 6px rgba(0,0,0,.6),
@@ -127,8 +114,7 @@ inset 0 -3px 6px rgba(0,0,0,.6),
 }
 
 /* SHINE */
-#popup_final .btn::before,
-#popup_final .close::before{
+#popup_final .btn::before{
 content:"";
 position:absolute;
 top:-50%;
@@ -139,21 +125,54 @@ background:linear-gradient(120deg,transparent,rgba(255,255,255,.8),transparent);
 animation:shineMove 3s infinite;
 }
 
-/* TUTUP */
+/* 🔴 CLOSE BUTTON MERAH PREMIUM */
 #popup_final .close{
 grid-column:span 2;
-background:linear-gradient(180deg,#1e40af,#1d4ed8,#2563eb,#0f172a);
+
+position:relative;
+display:flex;
+align-items:center;
+justify-content:center;
+height:42px;
+border-radius:40px;
+font-size:11px;
+font-weight:900;
+color:#fff;
+text-decoration:none;
+
+background:linear-gradient(180deg,
+#ffb3b3,
+#ff4d4d,
+#ff0000,
+#990000
+);
+
+border:1px solid #ff4d4d;
+
+cursor:pointer;
+overflow:hidden;
+
+box-shadow:
+inset 0 2px 4px rgba(255,255,255,.5),
+inset 0 -3px 6px rgba(0,0,0,.6),
+0 0 15px rgba(255,0,0,.7);
 }
 
-/* SPARK */
-#popup_final .close::after{
+/* SHINE CLOSE */
+#popup_final .close::before{
 content:"";
 position:absolute;
-inset:0;
-background:
-radial-gradient(2px 2px at 20% 70%, rgba(59,130,246,.9), transparent),
-radial-gradient(2px 2px at 60% 40%, rgba(147,197,253,.8), transparent);
-animation:sparkMove 2s linear infinite;
+top:-50%;
+left:-120%;
+width:120%;
+height:200%;
+background:linear-gradient(120deg,transparent,rgba(255,255,255,.9),transparent);
+animation:shineMove 2s infinite;
+}
+
+/* HOVER */
+#popup_final .close:hover{
+transform:scale(1.05);
 }
 
 /* HOT */
@@ -204,7 +223,7 @@ return `
 
 <a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
 
-<button class="close" id="closeBtn">TUTUP</button>
+<button class="close" id="closeBtn">TUTUP ✕</button>
 
 </div>
 </div>
@@ -222,7 +241,6 @@ wrap.id="popup_final";
 wrap.innerHTML=buildHTML();
 document.body.appendChild(wrap);
 
-/* SLIDER */
 const slides = wrap.querySelector(".slides");
 let index = 0;
 
@@ -231,7 +249,6 @@ index = (index + 1) % SLIDES.length;
 slides.style.transform = `translateX(-${index*100}%)`;
 },3000);
 
-/* CLOSE */
 document.getElementById("closeBtn").onclick=()=>wrap.remove();
 
 }
