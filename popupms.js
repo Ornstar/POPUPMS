@@ -57,14 +57,16 @@ width:360px;
 max-width:92vw;
 background:#0b1a3a;
 border-radius:20px;
-overflow:hidden;
+overflow:visible;
 box-shadow:0 20px 60px rgba(0,0,0,.9);
+position:relative;
 }
 
 /* BANNER */
 #popup_final .banner{
 aspect-ratio:4/4;
 overflow:hidden;
+border-radius:20px 20px 0 0;
 }
 
 #popup_final .slides{
@@ -125,21 +127,24 @@ background:linear-gradient(120deg,transparent,rgba(255,255,255,.8),transparent);
 animation:shineMove 3s infinite;
 }
 
-/* 🔴 CLOSE BUTTON MERAH PREMIUM */
-#popup_final .close{
-grid-column:span 2;
+/* 🔴 CLOSE BUTTON BULAT MERAH */
+#popup_final .closeX{
+position:absolute;
+bottom:-30px;
+left:50%;
+transform:translateX(-50%);
+width:60px;
+height:60px;
+border-radius:50%;
 
-position:relative;
 display:flex;
 align-items:center;
 justify-content:center;
-height:42px;
-border-radius:40px;
-font-size:11px;
-font-weight:900;
+
+font-size:28px;
+font-weight:bold;
 color:#fff;
 
-/* MERAH PREMIUM */
 background:linear-gradient(180deg,
 #ffb3b3 0%,
 #ff4d4d 30%,
@@ -147,18 +152,20 @@ background:linear-gradient(180deg,
 #990000 100%
 );
 
-border:1px solid #ff4d4d;
-cursor:pointer;
-overflow:hidden;
-
 box-shadow:
-inset 0 2px 4px rgba(255,255,255,.5),
-inset 0 -3px 6px rgba(0,0,0,.6),
-0 0 15px rgba(255,0,0,.7);
+0 12px 30px rgba(0,0,0,.9),
+0 0 25px rgba(255,0,0,.9),
+inset 0 4px 6px rgba(255,255,255,.6),
+inset 0 -4px 8px rgba(0,0,0,.6);
+
+cursor:pointer;
+z-index:9999;
+overflow:hidden;
+transition:.25s;
 }
 
 /* SHINE CLOSE */
-#popup_final .close::before{
+#popup_final .closeX::before{
 content:"";
 position:absolute;
 top:-50%;
@@ -169,9 +176,20 @@ background:linear-gradient(120deg,transparent,rgba(255,255,255,.9),transparent);
 animation:shineMove 2s infinite;
 }
 
+/* GLOSS */
+#popup_final .closeX::after{
+content:"";
+position:absolute;
+top:-20%;
+left:-10%;
+width:120%;
+height:60%;
+background:radial-gradient(circle, rgba(255,255,255,.5), transparent 70%);
+}
+
 /* HOVER */
-#popup_final .close:hover{
-transform:scale(1.05);
+#popup_final .closeX:hover{
+transform:translateX(-50%) scale(1.15);
 }
 
 /* HOT */
@@ -222,9 +240,11 @@ return `
 
 <a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
 
-<button class="close" id="closeBtn">TUTUP ✕</button>
-
 </div>
+
+<!-- 🔴 CLOSE BULAT -->
+<div class="closeX" id="closeBtn">✕</div>
+
 </div>
 `;
 }
