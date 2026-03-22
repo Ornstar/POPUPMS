@@ -16,6 +16,7 @@ const BTN4_URL = "https://urlmsshorten.com/apk-mauslot";
 
 const SLIDES = [
 "https://i.postimg.cc/nLZ0RgLc/MS038-Feed-1080x1080.jpg",
+"http://plcl.me/images/W2eg4.jpg",
 ];
 
 /* ================= STYLE ================= */
