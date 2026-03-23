@@ -15,8 +15,8 @@ const BTN3_URL = "https://urlmsshorten.com/group-tele-official";
 const BTN4_URL = "https://urlmsshorten.com/apk-mauslot";
 
 const SLIDES = [
-"http://plcl.me/images/bMTZP.jpg",
-"http://plcl.me/images/X7Mnu.jpg",
+"http://plcl.me/images/TMMAa.png",
+"http://plcl.me/images/JNgNR.png",
 ];
 
 /* ================= STYLE ================= */
