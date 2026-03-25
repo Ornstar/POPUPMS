@@ -41,13 +41,23 @@ style.textContent = `
 100%{left:120%}
 }
 
+/* OVERLAY */
+#popup_overlay{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+z-index:999998;
+display:flex;
+align-items:center;
+justify-content:center;
+}
+
 /* POPUP */
 #popup_final{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-z-index:999999;
+position:relative;
 font-family:Arial;
 }
 
@@ -90,7 +100,7 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-/* BUTTON UTAMA */
+/* BUTTON */
 #popup_final .btn{
 position:relative;
 display:flex;
@@ -115,7 +125,6 @@ inset 0 -3px 6px rgba(0,0,0,.6),
 0 0 12px rgba(59,130,246,.5);
 }
 
-/* SHINE BUTTON */
 #popup_final .btn::before{
 content:"";
 position:absolute;
@@ -127,7 +136,7 @@ background:linear-gradient(120deg,transparent,rgba(255,255,255,.8),transparent);
 animation:shineMove 3s infinite;
 }
 
-/* 🔴 CLOSE BUTTON BULAT MERAH */
+/* CLOSE BUTTON */
 #popup_final .closeX{
 position:absolute;
 bottom:-30px;
@@ -145,57 +154,13 @@ font-size:28px;
 font-weight:bold;
 color:#fff;
 
-background:linear-gradient(180deg,
-#ffb3b3 0%,
-#ff4d4d 30%,
-#ff0000 60%,
-#990000 100%
-);
-
-box-shadow:
-0 12px 30px rgba(0,0,0,.9),
-0 0 25px rgba(255,0,0,.9),
-inset 0 4px 6px rgba(255,255,255,.6),
-inset 0 -4px 8px rgba(0,0,0,.6);
+background:linear-gradient(180deg,#ffb3b3,#ff0000,#990000);
 
 cursor:pointer;
 z-index:9999;
-overflow:hidden;
-transition:.25s;
 }
 
-/* SHINE CLOSE */
-#popup_final .closeX::before{
-content:"";
-position:absolute;
-top:-50%;
-left:-120%;
-width:120%;
-height:200%;
-background:linear-gradient(120deg,transparent,rgba(255,255,255,.9),transparent);
-animation:shineMove 2s infinite;
-}
-
-/* GLOSS */
-#popup_final .closeX::after{
-content:"";
-position:absolute;
-top:-20%;
-left:-10%;
-width:120%;
-height:60%;
-background:radial-gradient(circle, rgba(255,255,255,.5), transparent 70%);
-}
-
-/* HOVER */
-#popup_final .closeX:hover{
-transform:translateX(-50%) scale(1.15);
-}
-
-/* HOT */
-#popup_final .btnWrap{
-position:relative;
-}
+#popup_final .btnWrap{position:relative;}
 
 #popup_final .hot{
 position:absolute;
@@ -206,10 +171,8 @@ color:#fff;
 font-size:9px;
 padding:4px 6px;
 border-radius:6px;
-z-index:9999;
 animation:pulse 1s infinite;
 }
-
 `;
 
 document.head.appendChild(style);
@@ -222,29 +185,28 @@ function buildHTML(){
 const slidesHTML = SLIDES.map(s=>`<img src="${s}">`).join("");
 
 return `
-<div class="card">
+<div id="popup_final">
+  <div class="card">
 
-<div class="banner">
-<div class="slides">${slidesHTML}</div>
-</div>
+    <div class="banner">
+      <div class="slides">${slidesHTML}</div>
+    </div>
 
-<div class="buttons">
+    <div class="buttons">
+      <a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
+      <a class="btn" href="${BTN2_URL}" target="_blank">LINK ANTI NAWALA</a>
 
-<a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
-<a class="btn" href="${BTN2_URL}" target="_blank">LINK ANTI NAWALA</a>
+      <div class="btnWrap">
+        <span class="hot">HOT</span>
+        <a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
+      </div>
 
-<div class="btnWrap">
-<span class="hot">HOT</span>
-<a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
-</div>
+      <a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
+    </div>
 
-<a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
+    <div class="closeX" id="closeBtn">✕</div>
 
-</div>
-
-<!-- 🔴 CLOSE BULAT -->
-<div class="closeX" id="closeBtn">✕</div>
-
+  </div>
 </div>
 `;
 }
@@ -255,9 +217,9 @@ function init(){
 
 injectStyle();
 
-const wrap=document.createElement("div");
-wrap.id="popup_final";
-wrap.innerHTML=buildHTML();
+const wrap = document.createElement("div");
+wrap.id = "popup_overlay";
+wrap.innerHTML = buildHTML();
 document.body.appendChild(wrap);
 
 const slides = wrap.querySelector(".slides");
@@ -268,7 +230,15 @@ index = (index + 1) % SLIDES.length;
 slides.style.transform = `translateX(-${index*100}%)`;
 },3000);
 
-document.getElementById("closeBtn").onclick=()=>wrap.remove();
+// tombol X
+wrap.querySelector("#closeBtn").onclick = () => wrap.remove();
+
+// klik luar popup
+wrap.addEventListener("click", (e) => {
+  if (!e.target.closest("#popup_final")) {
+    wrap.remove();
+  }
+});
 
 }
 
