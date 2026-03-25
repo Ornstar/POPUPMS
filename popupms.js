@@ -100,9 +100,16 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
+/* WRAP BUTTON (PENTING) */
+#popup_final .btnWrap{
+position:relative;
+z-index:5;
+}
+
 /* BUTTON */
 #popup_final .btn{
 position:relative;
+z-index:1;
 display:flex;
 align-items:center;
 justify-content:center;
@@ -125,6 +132,7 @@ inset 0 -3px 6px rgba(0,0,0,.6),
 0 0 12px rgba(59,130,246,.5);
 }
 
+/* SHINE FIX (DI BAWAH SEMUA) */
 #popup_final .btn::before{
 content:"";
 position:absolute;
@@ -134,6 +142,23 @@ width:120%;
 height:200%;
 background:linear-gradient(120deg,transparent,rgba(255,255,255,.8),transparent);
 animation:shineMove 3s infinite;
+z-index:0;
+pointer-events:none;
+}
+
+/* HOT BADGE (PALING ATAS) */
+#popup_final .hot{
+position:absolute;
+top:-10px;
+right:-6px;
+background:#ef4444;
+color:#fff;
+font-size:9px;
+padding:4px 6px;
+border-radius:6px;
+animation:pulse 1s infinite;
+z-index:999;
+pointer-events:none;
 }
 
 /* CLOSE BUTTON */
@@ -158,20 +183,6 @@ background:linear-gradient(180deg,#ffb3b3,#ff0000,#990000);
 
 cursor:pointer;
 z-index:9999;
-}
-
-#popup_final .btnWrap{position:relative;}
-
-#popup_final .hot{
-position:absolute;
-top:-10px;
-right:-6px;
-background:#ef4444;
-color:#fff;
-font-size:9px;
-padding:4px 6px;
-border-radius:6px;
-animation:pulse 1s infinite;
 }
 `;
 
