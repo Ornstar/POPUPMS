@@ -1,11 +1,9 @@
 (() => {
 "use strict";
 
-/* ================= FILTER (HOME ONLY) ================= */
-
-const currentURL = window.location.href.toLowerCase();
-const isHome = currentURL.includes("home") || currentURL.endsWith("/");
-if (!isHome) return;
+/* ================= FILTER (DISABLE DULU BIAR TEST) ================= */
+// sementara kita matikan dulu biar pasti muncul
+// nanti kalau mau aktifin lagi baru kita adjust
 
 /* ================= CONFIG ================= */
 
@@ -28,20 +26,7 @@ if(document.getElementById("popup_mauslot")) return;
 const style = document.createElement("style");
 style.id = "popup_mauslot";
 
-style.textContent = `
-
-@keyframes pulse{
-0%{transform:scale(1)}
-50%{transform:scale(1.2)}
-100%{transform:scale(1)}
-}
-
-@keyframes shineMove{
-0%{left:-120%}
-100%{left:120%}
-}
-
-/* OVERLAY */
+style.innerHTML = `
 #popup_overlay{
 position:fixed;
 top:0;
@@ -49,50 +34,29 @@ left:0;
 width:100%;
 height:100%;
 background:rgba(0,0,0,0.6);
-z-index:999998;
+z-index:999999;
 display:flex;
 align-items:center;
 justify-content:center;
 }
 
-/* POPUP */
-#popup_final{
-position:relative;
-font-family:Arial;
-}
-
-/* CARD */
 #popup_final .card{
 width:360px;
-max-width:92vw;
 background:#0b1a3a;
 border-radius:20px;
-overflow:visible;
-box-shadow:0 20px 60px rgba(0,0,0,.9);
-position:relative;
-}
-
-/* BANNER */
-#popup_final .banner{
-aspect-ratio:4/4;
 overflow:hidden;
-border-radius:20px 20px 0 0;
+position:relative;
 }
 
 #popup_final .slides{
 display:flex;
-height:100%;
-transition:transform .5s ease;
+transition:0.5s;
 }
 
-#popup_final .slides img{
+#popup_final img{
 width:100%;
-height:100%;
-object-fit:contain;
-flex-shrink:0;
 }
 
-/* BUTTONS */
 #popup_final .buttons{
 padding:16px;
 display:grid;
@@ -100,68 +64,35 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-/* WRAP BUTTON */
-#popup_final .btnWrap{
-position:relative;
-z-index:5;
-}
-
-/* BUTTON */
 #popup_final .btn{
-position:relative;
-z-index:1;
 display:flex;
 align-items:center;
 justify-content:center;
 height:42px;
 border-radius:40px;
 font-size:11px;
-font-weight:900;
-color:#ffffff;
+font-weight:bold;
+color:#fff;
 text-decoration:none;
-
-background:linear-gradient(180deg,#1e3a8a,#1e40af,#1d4ed8,#0f172a);
-border:1px solid #3b82f6;
-
-cursor:pointer;
-overflow:hidden;
-
-box-shadow:
-inset 0 2px 0 rgba(255,255,255,.2),
-inset 0 -3px 6px rgba(0,0,0,.6),
-0 0 12px rgba(59,130,246,.5);
+background:#1e40af;
 }
 
-/* SHINE BUTTON */
-#popup_final .btn::before{
-content:"";
-position:absolute;
-top:-50%;
-left:-120%;
-width:120%;
-height:200%;
-background:linear-gradient(120deg,transparent,rgba(255,255,255,.8),transparent);
-animation:shineMove 3s infinite;
-z-index:0;
-pointer-events:none;
+#popup_final .btnWrap{
+position:relative;
 }
 
-/* HOT BADGE */
 #popup_final .hot{
 position:absolute;
 top:-10px;
 right:-6px;
-background:#ef4444;
+background:red;
 color:#fff;
 font-size:9px;
 padding:4px 6px;
 border-radius:6px;
-animation:pulse 1s infinite;
-z-index:999;
-pointer-events:none;
+z-index:10;
 }
 
-/* CLOSE BUTTON (FULL EFFECT) */
 #popup_final .closeX{
 position:absolute;
 bottom:-30px;
@@ -170,60 +101,14 @@ transform:translateX(-50%);
 width:60px;
 height:60px;
 border-radius:50%;
-
+background:red;
+color:#fff;
 display:flex;
 align-items:center;
 justify-content:center;
-
 font-size:28px;
-font-weight:bold;
-color:#fff;
-
-background:linear-gradient(180deg,
-#ffb3b3 0%,
-#ff4d4d 30%,
-#ff0000 60%,
-#990000 100%
-);
-
-box-shadow:
-0 12px 30px rgba(0,0,0,.9),
-0 0 25px rgba(255,0,0,.9),
-inset 0 4px 6px rgba(255,255,255,.6),
-inset 0 -4px 8px rgba(0,0,0,.6);
-
 cursor:pointer;
 z-index:9999;
-overflow:hidden;
-transition:.25s;
-}
-
-/* SHINE CLOSE */
-#popup_final .closeX::before{
-content:"";
-position:absolute;
-top:-50%;
-left:-120%;
-width:120%;
-height:200%;
-background:linear-gradient(120deg,transparent,rgba(255,255,255,.9),transparent);
-animation:shineMove 2s infinite;
-}
-
-/* GLOSS */
-#popup_final .closeX::after{
-content:"";
-position:absolute;
-top:-20%;
-left:-10%;
-width:120%;
-height:60%;
-background:radial-gradient(circle, rgba(255,255,255,.5), transparent 70%);
-}
-
-/* HOVER */
-#popup_final .closeX:hover{
-transform:translateX(-50%) scale(1.15);
 }
 `;
 
@@ -240,20 +125,18 @@ return `
 <div id="popup_final">
   <div class="card">
 
-    <div class="banner">
-      <div class="slides">${slidesHTML}</div>
-    </div>
+    <div class="slides">${slidesHTML}</div>
 
     <div class="buttons">
-      <a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
-      <a class="btn" href="${BTN2_URL}" target="_blank">LINK ANTI NAWALA</a>
+      <a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI</a>
+      <a class="btn" href="${BTN2_URL}" target="_blank">LINK</a>
 
       <div class="btnWrap">
         <span class="hot">HOT</span>
-        <a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
+        <a class="btn" href="${BTN3_URL}" target="_blank">BONUS</a>
       </div>
 
-      <a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
+      <a class="btn" href="${BTN4_URL}" target="_blank">APK</a>
     </div>
 
     <div class="closeX" id="closeBtn">✕</div>
@@ -277,24 +160,28 @@ document.body.appendChild(wrap);
 const slides = wrap.querySelector(".slides");
 let index = 0;
 
-setInterval(()=>{
+setInterval(function(){
 index = (index + 1) % SLIDES.length;
-slides.style.transform = \`translateX(-\${index*100}%)\`;
+slides.style.transform = "translateX(-" + (index*100) + "%)";
 },3000);
 
 // tombol X
-wrap.querySelector("#closeBtn").onclick = () => wrap.remove();
+wrap.querySelector("#closeBtn").onclick = function(){
+wrap.remove();
+};
 
 // klik luar popup
-wrap.addEventListener("click", (e) => {
-  if (!e.target.closest("#popup_final")) {
-    wrap.remove();
-  }
-});
+wrap.onclick = function(e){
+if (!e.target.closest("#popup_final")) {
+wrap.remove();
+}
+};
 
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
+/* ================= RUN ================= */
+
+window.addEventListener("load", function(){
 setTimeout(init,800);
 });
 
