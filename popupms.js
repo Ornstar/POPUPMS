@@ -1,3 +1,13 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Popup Mauslot</title>
+</head>
+<body>
+
+<script>
 (() => {
 "use strict";
 
@@ -16,7 +26,7 @@ const BTN4_URL = "https://urlmsshorten.com/apk-mauslot";
 
 const SLIDES = [
 "http://plcl.me/images/TMMAa.png",
-"http://plcl.me/images/JNgNR.png",
+"http://plcl.me/images/eweWv.png"
 ];
 
 /* ================= STYLE ================= */
