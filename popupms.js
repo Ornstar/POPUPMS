@@ -1,20 +1,13 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Popup Mauslot</title>
-</head>
-<body>
-
-<script>
 (() => {
 "use strict";
 
-/* ================= FILTER (HOME ONLY) ================= */
+/* ================= FILTER ================= */
 
-const currentURL = window.location.href.toLowerCase();
-const isHome = currentURL.includes("home") || currentURL.endsWith("/");
+// sementara dibuat selalu aktif (biar pasti muncul dulu)
+const isHome = true;
+// kalau mau aktifkan filter lagi nanti:
+// const isHome = window.location.pathname === "/";
+
 if (!isHome) return;
 
 /* ================= CONFIG ================= */
@@ -25,8 +18,8 @@ const BTN3_URL = "https://urlmsshorten.com/group-tele-official";
 const BTN4_URL = "https://urlmsshorten.com/apk-mauslot";
 
 const SLIDES = [
-"http://plcl.me/images/TMMAa.png",
-"http://plcl.me/images/eweWv.png"
+"https://plcl.me/images/TMMAa.png",
+"https://plcl.me/images/eweWv.png"
 ];
 
 /* ================= STYLE ================= */
@@ -39,7 +32,6 @@ const style = document.createElement("style");
 style.id = "popup_mauslot";
 
 style.textContent = `
-
 @keyframes pulse{
 0%{transform:scale(1)}
 50%{transform:scale(1.2)}
@@ -51,7 +43,6 @@ style.textContent = `
 100%{left:120%}
 }
 
-/* OVERLAY */
 #popup_overlay{
 position:fixed;
 top:0;
@@ -65,13 +56,11 @@ align-items:center;
 justify-content:center;
 }
 
-/* POPUP */
 #popup_final{
 position:relative;
 font-family:Arial;
 }
 
-/* CARD */
 #popup_final .card{
 width:360px;
 max-width:92vw;
@@ -82,7 +71,6 @@ box-shadow:0 20px 60px rgba(0,0,0,.9);
 position:relative;
 }
 
-/* BANNER */
 #popup_final .banner{
 aspect-ratio:4/4;
 overflow:hidden;
@@ -102,7 +90,6 @@ object-fit:contain;
 flex-shrink:0;
 }
 
-/* BUTTONS */
 #popup_final .buttons{
 padding:16px;
 display:grid;
@@ -110,13 +97,11 @@ grid-template-columns:1fr 1fr;
 gap:10px;
 }
 
-/* WRAP BUTTON (PENTING) */
 #popup_final .btnWrap{
 position:relative;
 z-index:5;
 }
 
-/* BUTTON */
 #popup_final .btn{
 position:relative;
 z-index:1;
@@ -129,20 +114,16 @@ font-size:11px;
 font-weight:900;
 color:#ffffff;
 text-decoration:none;
-
 background:linear-gradient(180deg,#1e3a8a,#1e40af,#1d4ed8,#0f172a);
 border:1px solid #3b82f6;
-
 cursor:pointer;
 overflow:hidden;
-
 box-shadow:
 inset 0 2px 0 rgba(255,255,255,.2),
 inset 0 -3px 6px rgba(0,0,0,.6),
 0 0 12px rgba(59,130,246,.5);
 }
 
-/* SHINE FIX (DI BAWAH SEMUA) */
 #popup_final .btn::before{
 content:"";
 position:absolute;
@@ -156,7 +137,6 @@ z-index:0;
 pointer-events:none;
 }
 
-/* HOT BADGE (PALING ATAS) */
 #popup_final .hot{
 position:absolute;
 top:-10px;
@@ -171,7 +151,6 @@ z-index:999;
 pointer-events:none;
 }
 
-/* CLOSE BUTTON */
 #popup_final .closeX{
 position:absolute;
 bottom:-30px;
@@ -180,17 +159,13 @@ transform:translateX(-50%);
 width:60px;
 height:60px;
 border-radius:50%;
-
 display:flex;
 align-items:center;
 justify-content:center;
-
 font-size:28px;
 font-weight:bold;
 color:#fff;
-
 background:linear-gradient(180deg,#ffb3b3,#ff0000,#990000);
-
 cursor:pointer;
 z-index:9999;
 }
@@ -236,6 +211,9 @@ return `
 
 function init(){
 
+// cegah double popup
+if(document.getElementById("popup_overlay")) return;
+
 injectStyle();
 
 const wrap = document.createElement("div");
@@ -251,10 +229,8 @@ index = (index + 1) % SLIDES.length;
 slides.style.transform = `translateX(-${index*100}%)`;
 },3000);
 
-// tombol X
 wrap.querySelector("#closeBtn").onclick = () => wrap.remove();
 
-// klik luar popup
 wrap.addEventListener("click", (e) => {
   if (!e.target.closest("#popup_final")) {
     wrap.remove();
@@ -263,8 +239,13 @@ wrap.addEventListener("click", (e) => {
 
 }
 
-document.addEventListener("DOMContentLoaded",()=>{
-setTimeout(init,800);
-});
+// pastikan body sudah siap
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(init, 800);
+  });
+} else {
+  setTimeout(init, 800);
+}
 
 })();
