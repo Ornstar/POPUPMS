@@ -1,5 +1,4 @@
 (() => {
-
 const CONFIG = {
   IMAGES: [
     "http://plcl.me/images/eCCez.png",
@@ -7,206 +6,333 @@ const CONFIG = {
   ],
   OVERLAY_ID: "IMG_POPUP",
   CLOSE_ID: "IMG_CLOSE",
-  INTERVAL: 3000
+  INTERVAL: 3000,
+  HOME_PATHS: ["/", "/home", "/index", "/index.html", "/index.php"]
 };
+
+const isHomePage = () => {
+  const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
+  return CONFIG.HOME_PATHS.some(p => {
+    const normalized = p.toLowerCase().replace(/\/$/, "") || "/";
+    return path === normalized;
+  });
+};
+
+if (!isHomePage()) return;
 
 let isShown = false;
 let currentIndex = 0;
 let sliderInterval;
 
+// ✅ Cari elemen fixed/sticky yang benar-benar menempel di atas layar
+const getFixedHeaderHeight = () => {
+  let maxBottom = 0;
+  const all = document.querySelectorAll("*");
+  for (let i = 0; i < all.length; i++) {
+    const el = all[i];
+    try {
+      const st = window.getComputedStyle(el);
+      const pos = st.position;
+      if (pos === "fixed" || pos === "sticky") {
+        const rect = el.getBoundingClientRect();
+        // Hanya ambil elemen yang di atas layar dan tidak terlalu tinggi
+        if (rect.top <= 10 && rect.height > 0 && rect.height < 300 && rect.bottom > maxBottom) {
+          maxBottom = rect.bottom;
+        }
+      }
+    } catch(e) {}
+  }
+  // Dari data console kamu: fixed header = 80px
+  return maxBottom > 0 ? maxBottom : 80;
+};
+
 const injectCSS = () => {
   if (document.getElementById("IMG_STYLE")) return;
-
   const style = document.createElement("style");
   style.id = "IMG_STYLE";
   style.textContent = `
-#${CONFIG.OVERLAY_ID}{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.6);
-  backdrop-filter: blur(8px);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:999999;
-  animation: fadeIn .5s ease;
-}
+    @keyframes popupEntrance {
+      0%   { opacity: 0; transform: translateX(-50%) scale(0.78) translateY(20px); }
+      60%  { opacity: 1; transform: translateX(-50%) scale(1.03) translateY(-4px); }
+      80%  { transform: translateX(-50%) scale(0.98) translateY(2px); }
+      100% { transform: translateX(-50%) scale(1) translateY(0); }
+    }
+    @keyframes floatAnim {
+      0%,100% { margin-top: 0px; }
+      25%      { margin-top: -5px; }
+      75%      { margin-top: 3px; }
+    }
+    @keyframes pulseGlow {
+      0%,100% { box-shadow: 0 0 18px 2px rgba(80,120,255,0.25), 0 8px 40px rgba(0,0,0,0.35); }
+      50%      { box-shadow: 0 0 32px 6px rgba(80,180,255,0.38), 0 12px 48px rgba(0,0,0,0.45); }
+    }
+    @keyframes btnShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    @keyframes dotPulse {
+      0%,100% { opacity: 0.4; transform: scale(1);   }
+      50%      { opacity: 1;   transform: scale(1.4); }
+    }
 
-/* OVERLAY */
-@keyframes fadeIn {
-  from {opacity:0;}
-  to {opacity:1;}
-}
+    #IMG_POPUP {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      pointer-events: none;
+      animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    }
 
-/* POPUP MASUK */
-@keyframes popupIn {
-  0% {
-    transform: translateY(40px) scale(.85);
-    opacity: 0;
-  }
-  60% {
-    transform: translateY(-10px) scale(1.03);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(0) scale(1);
-  }
-}
+    .popup-box {
+      pointer-events: auto;
+      position: relative;
+      background: rgba(15, 20, 50, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 20px;
+      padding: 18px 18px 16px;
+      width: 530px;
+      max-width: 94vw;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      text-align: center;
+      animation:
+        floatAnim  5s ease-in-out 1s infinite,
+        pulseGlow  3s ease-in-out 0.8s infinite;
+    }
+    .popup-box::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 50%, rgba(255,255,255,0.02) 100%);
+      pointer-events: none;
+    }
 
-/* FLOATING */
-@keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-8px); }
-  100% { transform: translateY(0px); }
-}
+    .popup-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(120,200,255,0.9);
+      background: rgba(80,160,255,0.12);
+      border: 1px solid rgba(80,160,255,0.25);
+      border-radius: 999px;
+      padding: 3px 12px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
 
-/* BOX */
-.popup-box{
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(20px);
-  border-radius: 16px;
-  padding: 15px;
-  box-shadow: 0 20px 60px rgba(0,0,0,.5);
-  text-align:center;
-  position: relative;
+    .slider-wrap {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      background: rgba(0,0,0,0.3);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .slider-wrap img {
+      width: 100%;
+      height: 360px;
+      object-fit: contain;
+      object-position: center;
+      display: block;
+      border-radius: 14px;
+      transition: opacity 0.45s ease;
+    }
+    .slider-overlay-grad {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 40%);
+      border-radius: 14px;
+      pointer-events: none;
+    }
 
-  animation: popupIn .6s ease, float 3s ease-in-out infinite;
-}
+    .nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px;
+      height: 32px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: white;
+      font-size: 13px;
+      user-select: none;
+      backdrop-filter: blur(8px);
+      transition: background 0.2s, transform 0.2s;
+      z-index: 2;
+    }
+    .nav:hover { background: rgba(255,255,255,0.22); transform: translateY(-50%) scale(1.12); }
+    .nav.left  { left: 8px; }
+    .nav.right { right: 8px; }
 
-/* PAUSE FLOAT SAAT HOVER */
-.popup-box:hover{
-  animation-play-state: paused;
-}
+    .popup-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
+    .popup-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.25);
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .popup-dot.active {
+      background: rgba(100,180,255,0.95);
+      width: 18px;
+      border-radius: 999px;
+      animation: dotPulse 1.8s ease-in-out infinite;
+    }
 
-/* IMAGE */
-.slider img{
-  width:500px;
-  max-width:90%;
-  border-radius:12px;
-  transition: opacity .5s ease;
-}
+    #IMG_CLOSE {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      border: none;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(90deg, #1a73e8 0%, #00c6ff 50%, #1a73e8 100%);
+      background-size: 200% auto;
+      animation: btnShimmer 2.5s linear infinite;
+      transition: transform 0.2s, opacity 0.2s;
+      flex-shrink: 0;
+    }
+    #IMG_CLOSE:hover  { transform: scale(1.03); opacity: 0.9; }
+    #IMG_CLOSE:active { transform: scale(0.97); }
 
-/* NAV */
-.nav{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:24px;
-  color:#fff;
-  cursor:pointer;
-  padding:10px;
-  user-select:none;
-  transition:.3s;
-}
-.nav:hover{
-  transform: translateY(-50%) scale(1.2);
-}
-.nav.left{ left:0; }
-.nav.right{ right:0; }
-
-/* BUTTON */
-#${CONFIG.CLOSE_ID}{
-  margin-top:10px;
-  background: linear-gradient(135deg,#1e90ff,#00c6ff);
-  color:#fff;
-  border:none;
-  padding:8px 18px;
-  border-radius:999px;
-  font-size:14px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.3s;
-}
-#${CONFIG.CLOSE_ID}:hover{
-  transform: scale(1.08);
-  box-shadow:0 5px 20px rgba(0,0,0,.3);
-}
-`;
+    .popup-caption {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      margin-top: 8px;
+      letter-spacing: 0.3px;
+      flex-shrink: 0;
+    }
+  `;
   document.head.appendChild(style);
+};
+
+const buildDots = () => {
+  const wrap = document.querySelector(".popup-dots");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  CONFIG.IMAGES.forEach((_, i) => {
+    const d = document.createElement("span");
+    d.className = "popup-dot" + (i === 0 ? " active" : "");
+    d.onclick = () => { goTo(i); stopSlider(); };
+    wrap.appendChild(d);
+  });
+};
+
+const updateDots = () => {
+  document.querySelectorAll(".popup-dot").forEach((d, i) => {
+    d.className = "popup-dot" + (i === currentIndex ? " active" : "");
+  });
 };
 
 const renderHTML = () => `
 <div id="${CONFIG.OVERLAY_ID}">
   <div class="popup-box">
-    
-    <div class="slider">
+    <div class="popup-badge">✦ Penawaran Eksklusif</div>
+    <div class="slider-wrap">
       <span class="nav left">&#10094;</span>
       <img id="popup-image" src="${CONFIG.IMAGES[0]}" />
+      <div class="slider-overlay-grad"></div>
       <span class="nav right">&#10095;</span>
     </div>
-
-    <button id="${CONFIG.CLOSE_ID}">Tutup</button>
+    <div class="popup-dots"></div>
+    <button id="${CONFIG.CLOSE_ID}">✕ &nbsp; Tutup</button>
+    <div class="popup-caption">Klik di luar untuk menutup</div>
   </div>
 </div>
 `;
 
-const updateImage = () => {
+const goTo = (n) => {
+  currentIndex = (n + CONFIG.IMAGES.length) % CONFIG.IMAGES.length;
   const img = document.getElementById("popup-image");
   img.style.opacity = 0;
-
   setTimeout(() => {
     img.src = CONFIG.IMAGES[currentIndex];
     img.style.opacity = 1;
-  }, 200);
+    updateDots();
+  }, 220);
 };
 
-const nextSlide = () => {
-  currentIndex = (currentIndex + 1) % CONFIG.IMAGES.length;
-  updateImage();
+const nextSlide = () => goTo(currentIndex + 1);
+const prevSlide = () => goTo(currentIndex - 1);
+const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL); };
+const stopSlider  = () => { clearInterval(sliderInterval); };
+
+const closePopup = () => {
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  popup.style.transition = "opacity 0.35s, transform 0.35s";
+  popup.style.opacity = "0";
+  popup.style.transform = "translateX(-50%) scale(0.85)";
+  setTimeout(() => {
+    popup.remove();
+    stopSlider();
+    isShown = false;
+    document.removeEventListener("click", onDocumentClick, true);
+  }, 360);
 };
 
-const prevSlide = () => {
-  currentIndex = (currentIndex - 1 + CONFIG.IMAGES.length) % CONFIG.IMAGES.length;
-  updateImage();
+const onDocumentClick = (e) => {
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  const box = popup.querySelector(".popup-box");
+  if (box && !box.contains(e.target)) closePopup();
 };
 
-const startSlider = () => {
-  sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL);
-};
-
-const stopSlider = () => {
-  clearInterval(sliderInterval);
+const setPopupPosition = () => {
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  // ✅ Gunakan fixed header height (80px dari data console kamu)
+  const fixedTop = getFixedHeaderHeight();
+  popup.style.top = fixedTop + "px";
 };
 
 const showPopup = () => {
   if (isShown) return;
-
   injectCSS();
   document.body.insertAdjacentHTML("beforeend", renderHTML());
   isShown = true;
+  currentIndex = 0;
 
-  const overlay = document.getElementById(CONFIG.OVERLAY_ID);
+  setPopupPosition();
+  setTimeout(setPopupPosition, 300);
+  setTimeout(setPopupPosition, 800);
 
-  document.querySelector(".nav.right").onclick = () => {
-    nextSlide();
-    stopSlider();
-  };
-
-  document.querySelector(".nav.left").onclick = () => {
-    prevSlide();
-    stopSlider();
-  };
-
+  buildDots();
   startSlider();
 
-  document.getElementById(CONFIG.CLOSE_ID).onclick = () => {
-    overlay.remove();
-    stopSlider();
-  };
+  document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
+  document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
+  document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
 
-  overlay.onclick = (e) => {
-    if (e.target.id === CONFIG.OVERLAY_ID) {
-      overlay.remove();
-      stopSlider();
-    }
-  };
+  setTimeout(() => { document.addEventListener("click", onDocumentClick, true); }, 600);
 };
 
-/* DELAY BIAR LEBIH NATURAL */
-const init = () => setTimeout(showPopup, 800);
-
 document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", init)
-  : init();
-
+  ? document.addEventListener("DOMContentLoaded", showPopup)
+  : showPopup();
 })();
