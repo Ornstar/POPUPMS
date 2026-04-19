@@ -7,13 +7,9 @@ const CONFIG = {
   OVERLAY_ID: "IMG_POPUP",
   CLOSE_ID: "IMG_CLOSE",
   INTERVAL: 3000,
-
-  // ✅ Daftar path yang dianggap halaman HOME
-  // Tambah atau sesuaikan path sesuai struktur site kamu
   HOME_PATHS: ["/", "/home", "/index", "/index.html", "/index.php"]
 };
 
-// ✅ CEK APAKAH HALAMAN SEKARANG ADALAH HOME
 const isHomePage = () => {
   const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
   return CONFIG.HOME_PATHS.some(p => {
@@ -22,7 +18,6 @@ const isHomePage = () => {
   });
 };
 
-// Jika bukan halaman home, script berhenti di sini
 if (!isHomePage()) return;
 
 let isShown = false;
@@ -58,16 +53,21 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
+    /* ✅ KUNCI UTAMA: pointer-events none pada wrapper
+       Sehingga klik di luar popup-box tembus ke elemen site */
     #IMG_POPUP {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 999999;
+      pointer-events: none; /* wrapper tidak menangkap klik */
       animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
 
+    /* ✅ Hanya popup-box yang menerima klik */
     .popup-box {
+      pointer-events: auto;
       position: relative;
       background: rgba(15, 20, 50, 0.92);
       backdrop-filter: blur(24px);
@@ -265,7 +265,6 @@ const goTo = (n) => {
 
 const nextSlide = () => goTo(currentIndex + 1);
 const prevSlide = () => goTo(currentIndex - 1);
-
 const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL); };
 const stopSlider  = () => { clearInterval(sliderInterval); };
 
@@ -279,19 +278,16 @@ const closePopup = () => {
     popup.remove();
     stopSlider();
     isShown = false;
-    // ✅ Hapus listener klik dokumen setelah popup tertutup
     document.removeEventListener("click", onDocumentClick, true);
   }, 360);
 };
 
-// ✅ Klik di mana saja di luar popup = tutup
+// ✅ Klik di luar popup-box = tutup, tapi klik tetap tembus ke elemen site
 const onDocumentClick = (e) => {
   const popup = document.getElementById(CONFIG.OVERLAY_ID);
   if (!popup) return;
   const box = popup.querySelector(".popup-box");
-  if (box && !box.contains(e.target)) {
-    closePopup();
-  }
+  if (box && !box.contains(e.target)) closePopup();
 };
 
 const showPopup = () => {
@@ -300,18 +296,12 @@ const showPopup = () => {
   document.body.insertAdjacentHTML("beforeend", renderHTML());
   isShown = true;
   currentIndex = 0;
-
   buildDots();
   startSlider();
-
   document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
   document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
   document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
-
-  // ✅ Tunggu sebentar agar klik pertama tidak langsung menutup popup
-  setTimeout(() => {
-    document.addEventListener("click", onDocumentClick, true);
-  }, 600);
+  setTimeout(() => { document.addEventListener("click", onDocumentClick, true); }, 600);
 };
 
 document.readyState === "loading"
