@@ -24,28 +24,24 @@ let isShown = false;
 let currentIndex = 0;
 let sliderInterval;
 
-// ✅ Deteksi otomatis tinggi header/navbar site
-const getNavbarHeight = () => {
-  const selectors = [
-    "header", "nav", "#header", "#navbar", "#nav",
-    ".header", ".navbar", ".nav", ".top-bar",
-    "[class*='header']", "[class*='navbar']", "[id*='header']", "[id*='navbar']"
+// ✅ Target LANGSUNG div.main.nav-wrapper dari inspector
+const getNavbarBottom = () => {
+  // Selector persis dari inspector kamu
+  const targets = [
+    "div.main.nav-wrapper",
+    ".main.nav-wrapper",
+    ".header-wrapper",
+    "div.header-wrapper"
   ];
-  let maxBottom = 0;
-  selectors.forEach(sel => {
-    try {
-      document.querySelectorAll(sel).forEach(el => {
-        const rect = el.getBoundingClientRect();
-        // Hanya hitung elemen yang fixed/sticky di atas
-        const style = window.getComputedStyle(el);
-        if ((style.position === "fixed" || style.position === "sticky") && rect.bottom > maxBottom) {
-          maxBottom = rect.bottom;
-        }
-      });
-    } catch(e) {}
-  });
-  // Fallback: jika tidak ditemukan, gunakan 120px
-  return maxBottom > 0 ? maxBottom : 120;
+  for (const sel of targets) {
+    const el = document.querySelector(sel);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.height > 0) return rect.top + rect.height;
+    }
+  }
+  // Fallback nilai dari inspector kamu: 126.81px
+  return 127;
 };
 
 const injectCSS = () => {
@@ -79,9 +75,9 @@ const injectCSS = () => {
 
     #IMG_POPUP {
       position: fixed;
-      /* top diset via JS setelah hitung navbar */
       left: 50%;
       transform: translateX(-50%);
+      /* top di-set via JS tepat di bawah nav-wrapper */
       z-index: 999;
       pointer-events: none;
       animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
@@ -136,14 +132,13 @@ const injectCSS = () => {
       overflow: hidden;
       background: rgba(0,0,0,0.3);
       margin-bottom: 10px;
-      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .slider-wrap img {
       width: 100%;
-      height: 400px;
+      height: 380px;
       object-fit: contain;
       object-position: center;
       display: block;
@@ -307,6 +302,13 @@ const onDocumentClick = (e) => {
   if (box && !box.contains(e.target)) closePopup();
 };
 
+const setPopupPosition = () => {
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  const navBottom = getNavbarBottom();
+  popup.style.top = (navBottom + 8) + "px";
+};
+
 const showPopup = () => {
   if (isShown) return;
   injectCSS();
@@ -314,10 +316,11 @@ const showPopup = () => {
   isShown = true;
   currentIndex = 0;
 
-  // ✅ Set posisi top tepat di bawah navbar + sedikit jarak
-  const navH = getNavbarHeight();
-  const popup = document.getElementById(CONFIG.OVERLAY_ID);
-  popup.style.top = (navH + 12) + "px";
+  // Set posisi langsung, lalu cek ulang setelah 300ms & 800ms
+  // (kadang navbar Angular/framework render lambat)
+  setPopupPosition();
+  setTimeout(setPopupPosition, 300);
+  setTimeout(setPopupPosition, 800);
 
   buildDots();
   startSlider();
