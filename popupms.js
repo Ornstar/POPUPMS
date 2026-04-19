@@ -24,43 +24,21 @@ let isShown = false;
 let currentIndex = 0;
 let sliderInterval;
 
-// ✅ Cari elemen fixed/sticky yang benar-benar menempel di atas layar
-const getFixedHeaderHeight = () => {
-  let maxBottom = 0;
-  const all = document.querySelectorAll("*");
-  for (let i = 0; i < all.length; i++) {
-    const el = all[i];
-    try {
-      const st = window.getComputedStyle(el);
-      const pos = st.position;
-      if (pos === "fixed" || pos === "sticky") {
-        const rect = el.getBoundingClientRect();
-        // Hanya ambil elemen yang di atas layar dan tidak terlalu tinggi
-        if (rect.top <= 10 && rect.height > 0 && rect.height < 300 && rect.bottom > maxBottom) {
-          maxBottom = rect.bottom;
-        }
-      }
-    } catch(e) {}
-  }
-  // Dari data console kamu: fixed header = 80px
-  return maxBottom > 0 ? maxBottom : 80;
-};
-
 const injectCSS = () => {
   if (document.getElementById("IMG_STYLE")) return;
   const style = document.createElement("style");
   style.id = "IMG_STYLE";
   style.textContent = `
     @keyframes popupEntrance {
-      0%   { opacity: 0; transform: translateX(-50%) scale(0.78) translateY(20px); }
-      60%  { opacity: 1; transform: translateX(-50%) scale(1.03) translateY(-4px); }
-      80%  { transform: translateX(-50%) scale(0.98) translateY(2px); }
-      100% { transform: translateX(-50%) scale(1) translateY(0); }
+      0%   { opacity: 0; transform: scale(0.78) translateY(20px); }
+      60%  { opacity: 1; transform: scale(1.03) translateY(-4px); }
+      80%  { transform: scale(0.98) translateY(2px); }
+      100% { transform: scale(1) translateY(0); }
     }
     @keyframes floatAnim {
-      0%,100% { margin-top: 0px; }
-      25%      { margin-top: -5px; }
-      75%      { margin-top: 3px; }
+      0%,100% { transform: translateY(0px); }
+      25%      { transform: translateY(-5px); }
+      75%      { transform: translateY(3px); }
     }
     @keyframes pulseGlow {
       0%,100% { box-shadow: 0 0 18px 2px rgba(80,120,255,0.25), 0 8px 40px rgba(0,0,0,0.35); }
@@ -75,17 +53,19 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
+    /* ✅ Overlay TRANSPARAN penuh - blokir klik tapi tidak gelap */
     #IMG_POPUP {
       position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 999;
-      pointer-events: none;
-      animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
+      inset: 0;
+      z-index: 999999;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: auto;
     }
 
     .popup-box {
-      pointer-events: auto;
       position: relative;
       background: rgba(15, 20, 50, 0.95);
       backdrop-filter: blur(24px);
@@ -100,8 +80,9 @@ const injectCSS = () => {
       flex-direction: column;
       text-align: center;
       animation:
-        floatAnim  5s ease-in-out 1s infinite,
-        pulseGlow  3s ease-in-out 0.8s infinite;
+        popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards,
+        floatAnim     5s ease-in-out 1s infinite,
+        pulseGlow     3s ease-in-out 0.8s infinite;
     }
     .popup-box::before {
       content: '';
@@ -283,32 +264,15 @@ const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTER
 const stopSlider  = () => { clearInterval(sliderInterval); };
 
 const closePopup = () => {
-  const popup = document.getElementById(CONFIG.OVERLAY_ID);
-  if (!popup) return;
-  popup.style.transition = "opacity 0.35s, transform 0.35s";
-  popup.style.opacity = "0";
-  popup.style.transform = "translateX(-50%) scale(0.85)";
+  const overlay = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!overlay) return;
+  overlay.style.transition = "opacity 0.35s";
+  overlay.style.opacity = "0";
   setTimeout(() => {
-    popup.remove();
+    overlay.remove();
     stopSlider();
     isShown = false;
-    document.removeEventListener("click", onDocumentClick, true);
   }, 360);
-};
-
-const onDocumentClick = (e) => {
-  const popup = document.getElementById(CONFIG.OVERLAY_ID);
-  if (!popup) return;
-  const box = popup.querySelector(".popup-box");
-  if (box && !box.contains(e.target)) closePopup();
-};
-
-const setPopupPosition = () => {
-  const popup = document.getElementById(CONFIG.OVERLAY_ID);
-  if (!popup) return;
-  // ✅ Gunakan fixed header height (80px dari data console kamu)
-  const fixedTop = getFixedHeaderHeight();
-  popup.style.top = fixedTop + "px";
 };
 
 const showPopup = () => {
@@ -318,18 +282,17 @@ const showPopup = () => {
   isShown = true;
   currentIndex = 0;
 
-  setPopupPosition();
-  setTimeout(setPopupPosition, 300);
-  setTimeout(setPopupPosition, 800);
-
   buildDots();
   startSlider();
 
   document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
   document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
-  document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
+  document.getElementById(CONFIG.CLOSE_ID).onclick = closePopup;
 
-  setTimeout(() => { document.addEventListener("click", onDocumentClick, true); }, 600);
+  // ✅ Klik di luar popup-box = tutup
+  document.getElementById(CONFIG.OVERLAY_ID).onclick = (e) => {
+    if (!e.target.closest(".popup-box")) closePopup();
+  };
 };
 
 document.readyState === "loading"
