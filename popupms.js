@@ -6,8 +6,24 @@ const CONFIG = {
   ],
   OVERLAY_ID: "IMG_POPUP",
   CLOSE_ID: "IMG_CLOSE",
-  INTERVAL: 3000
+  INTERVAL: 3000,
+
+  // ✅ Daftar path yang dianggap halaman HOME
+  // Tambah atau sesuaikan path sesuai struktur site kamu
+  HOME_PATHS: ["/", "/home", "/index", "/index.html", "/index.php"]
 };
+
+// ✅ CEK APAKAH HALAMAN SEKARANG ADALAH HOME
+const isHomePage = () => {
+  const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
+  return CONFIG.HOME_PATHS.some(p => {
+    const normalized = p.toLowerCase().replace(/\/$/, "") || "/";
+    return path === normalized;
+  });
+};
+
+// Jika bukan halaman home, script berhenti di sini
+if (!isHomePage()) return;
 
 let isShown = false;
 let currentIndex = 0;
@@ -42,7 +58,6 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
-    /* ✅ POPUP: posisi tengah layar, TANPA overlay fullscreen */
     #IMG_POPUP {
       position: fixed;
       top: 50%;
@@ -260,7 +275,23 @@ const closePopup = () => {
   popup.style.transition = "opacity 0.35s, transform 0.35s";
   popup.style.opacity = "0";
   popup.style.transform = "translate(-50%, -50%) scale(0.85)";
-  setTimeout(() => { popup.remove(); stopSlider(); isShown = false; }, 360);
+  setTimeout(() => {
+    popup.remove();
+    stopSlider();
+    isShown = false;
+    // ✅ Hapus listener klik dokumen setelah popup tertutup
+    document.removeEventListener("click", onDocumentClick, true);
+  }, 360);
+};
+
+// ✅ Klik di mana saja di luar popup = tutup
+const onDocumentClick = (e) => {
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  const box = popup.querySelector(".popup-box");
+  if (box && !box.contains(e.target)) {
+    closePopup();
+  }
 };
 
 const showPopup = () => {
@@ -273,9 +304,14 @@ const showPopup = () => {
   buildDots();
   startSlider();
 
-  document.querySelector(".nav.right").onclick = () => { nextSlide(); stopSlider(); };
-  document.querySelector(".nav.left").onclick  = () => { prevSlide(); stopSlider(); };
-  document.getElementById(CONFIG.CLOSE_ID).onclick = closePopup;
+  document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
+  document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
+  document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
+
+  // ✅ Tunggu sebentar agar klik pertama tidak langsung menutup popup
+  setTimeout(() => {
+    document.addEventListener("click", onDocumentClick, true);
+  }, 600);
 };
 
 document.readyState === "loading"
