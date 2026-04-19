@@ -6,12 +6,47 @@ const CONFIG = {
   ],
   OVERLAY_ID: "IMG_POPUP",
   CLOSE_ID: "IMG_CLOSE",
-  INTERVAL: 3000
+  INTERVAL: 3000,
+  HOME_PATHS: ["/", "/home", "/index", "/index.html", "/index.php"]
 };
+
+const isHomePage = () => {
+  const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
+  return CONFIG.HOME_PATHS.some(p => {
+    const normalized = p.toLowerCase().replace(/\/$/, "") || "/";
+    return path === normalized;
+  });
+};
+
+if (!isHomePage()) return;
 
 let isShown = false;
 let currentIndex = 0;
 let sliderInterval;
+
+// ✅ Deteksi otomatis tinggi header/navbar site
+const getNavbarHeight = () => {
+  const selectors = [
+    "header", "nav", "#header", "#navbar", "#nav",
+    ".header", ".navbar", ".nav", ".top-bar",
+    "[class*='header']", "[class*='navbar']", "[id*='header']", "[id*='navbar']"
+  ];
+  let maxBottom = 0;
+  selectors.forEach(sel => {
+    try {
+      document.querySelectorAll(sel).forEach(el => {
+        const rect = el.getBoundingClientRect();
+        // Hanya hitung elemen yang fixed/sticky di atas
+        const style = window.getComputedStyle(el);
+        if ((style.position === "fixed" || style.position === "sticky") && rect.bottom > maxBottom) {
+          maxBottom = rect.bottom;
+        }
+      });
+    } catch(e) {}
+  });
+  // Fallback: jika tidak ditemukan, gunakan 120px
+  return maxBottom > 0 ? maxBottom : 120;
+};
 
 const injectCSS = () => {
   if (document.getElementById("IMG_STYLE")) return;
@@ -19,10 +54,10 @@ const injectCSS = () => {
   style.id = "IMG_STYLE";
   style.textContent = `
     @keyframes popupEntrance {
-      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.75) translateY(30px); }
-      60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.03) translateY(-4px); }
-      80%  { transform: translate(-50%, -50%) scale(0.98) translateY(2px); }
-      100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
+      0%   { opacity: 0; transform: translateX(-50%) scale(0.78) translateY(20px); }
+      60%  { opacity: 1; transform: translateX(-50%) scale(1.03) translateY(-4px); }
+      80%  { transform: translateX(-50%) scale(0.98) translateY(2px); }
+      100% { transform: translateX(-50%) scale(1) translateY(0); }
     }
     @keyframes floatAnim {
       0%,100% { margin-top: 0px; }
@@ -42,32 +77,30 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
-    /* ✅ POPUP: posisi tengah layar, TANPA overlay fullscreen */
     #IMG_POPUP {
       position: fixed;
-      top: 50%;
+      /* top diset via JS setelah hitung navbar */
       left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 999999;
+      transform: translateX(-50%);
+      z-index: 999;
+      pointer-events: none;
       animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
 
     .popup-box {
+      pointer-events: auto;
       position: relative;
-      background: rgba(15, 20, 50, 0.92);
+      background: rgba(15, 20, 50, 0.95);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,0.14);
       border-radius: 20px;
       padding: 18px 18px 16px;
       width: 530px;
-      height: 526px;
-      max-width: 96vw;
-      max-height: 96vh;
+      max-width: 94vw;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       text-align: center;
       animation:
         floatAnim  5s ease-in-out 1s infinite,
@@ -110,7 +143,7 @@ const injectCSS = () => {
     }
     .slider-wrap img {
       width: 100%;
-      height: 100%;
+      height: 400px;
       object-fit: contain;
       object-position: center;
       display: block;
@@ -250,7 +283,6 @@ const goTo = (n) => {
 
 const nextSlide = () => goTo(currentIndex + 1);
 const prevSlide = () => goTo(currentIndex - 1);
-
 const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL); };
 const stopSlider  = () => { clearInterval(sliderInterval); };
 
@@ -259,8 +291,20 @@ const closePopup = () => {
   if (!popup) return;
   popup.style.transition = "opacity 0.35s, transform 0.35s";
   popup.style.opacity = "0";
-  popup.style.transform = "translate(-50%, -50%) scale(0.85)";
-  setTimeout(() => { popup.remove(); stopSlider(); isShown = false; }, 360);
+  popup.style.transform = "translateX(-50%) scale(0.85)";
+  setTimeout(() => {
+    popup.remove();
+    stopSlider();
+    isShown = false;
+    document.removeEventListener("click", onDocumentClick, true);
+  }, 360);
+};
+
+const onDocumentClick = (e) => {
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  const box = popup.querySelector(".popup-box");
+  if (box && !box.contains(e.target)) closePopup();
 };
 
 const showPopup = () => {
@@ -270,12 +314,19 @@ const showPopup = () => {
   isShown = true;
   currentIndex = 0;
 
+  // ✅ Set posisi top tepat di bawah navbar + sedikit jarak
+  const navH = getNavbarHeight();
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  popup.style.top = (navH + 12) + "px";
+
   buildDots();
   startSlider();
 
-  document.querySelector(".nav.right").onclick = () => { nextSlide(); stopSlider(); };
-  document.querySelector(".nav.left").onclick  = () => { prevSlide(); stopSlider(); };
-  document.getElementById(CONFIG.CLOSE_ID).onclick = closePopup;
+  document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
+  document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
+  document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
+
+  setTimeout(() => { document.addEventListener("click", onDocumentClick, true); }, 600);
 };
 
 document.readyState === "loading"
