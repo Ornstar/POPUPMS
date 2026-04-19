@@ -6,19 +6,8 @@ const CONFIG = {
   ],
   OVERLAY_ID: "IMG_POPUP",
   CLOSE_ID: "IMG_CLOSE",
-  INTERVAL: 3000,
-  HOME_PATHS: ["/", "/home", "/index", "/index.html", "/index.php"]
+  INTERVAL: 3000
 };
-
-const isHomePage = () => {
-  const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
-  return CONFIG.HOME_PATHS.some(p => {
-    const normalized = p.toLowerCase().replace(/\/$/, "") || "/";
-    return path === normalized;
-  });
-};
-
-if (!isHomePage()) return;
 
 let isShown = false;
 let currentIndex = 0;
@@ -30,15 +19,15 @@ const injectCSS = () => {
   style.id = "IMG_STYLE";
   style.textContent = `
     @keyframes popupEntrance {
-      0%   { opacity: 0; transform: scale(0.78) translateY(20px); }
-      60%  { opacity: 1; transform: scale(1.03) translateY(-4px); }
-      80%  { transform: scale(0.98) translateY(2px); }
-      100% { transform: scale(1) translateY(0); }
+      0%   { opacity: 0; transform: translate(-50%, -50%) scale(0.75) translateY(30px); }
+      60%  { opacity: 1; transform: translate(-50%, -50%) scale(1.03) translateY(-4px); }
+      80%  { transform: translate(-50%, -50%) scale(0.98) translateY(2px); }
+      100% { transform: translate(-50%, -50%) scale(1) translateY(0); }
     }
     @keyframes floatAnim {
-      0%,100% { transform: translateY(0px); }
-      25%      { transform: translateY(-5px); }
-      75%      { transform: translateY(3px); }
+      0%,100% { margin-top: 0px; }
+      25%      { margin-top: -5px; }
+      75%      { margin-top: 3px; }
     }
     @keyframes pulseGlow {
       0%,100% { box-shadow: 0 0 18px 2px rgba(80,120,255,0.25), 0 8px 40px rgba(0,0,0,0.35); }
@@ -53,36 +42,36 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
-    /* ✅ Overlay TRANSPARAN penuh - blokir klik tapi tidak gelap */
+    /* ✅ POPUP: posisi tengah layar, TANPA overlay fullscreen */
     #IMG_POPUP {
       position: fixed;
-      inset: 0;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       z-index: 999999;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      pointer-events: auto;
+      animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
 
     .popup-box {
       position: relative;
-      background: rgba(15, 20, 50, 0.95);
+      background: rgba(15, 20, 50, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,0.14);
       border-radius: 20px;
       padding: 18px 18px 16px;
       width: 530px;
-      max-width: 94vw;
+      height: 526px;
+      max-width: 96vw;
+      max-height: 96vh;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       text-align: center;
       animation:
-        popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards,
-        floatAnim     5s ease-in-out 1s infinite,
-        pulseGlow     3s ease-in-out 0.8s infinite;
+        floatAnim  5s ease-in-out 1s infinite,
+        pulseGlow  3s ease-in-out 0.8s infinite;
     }
     .popup-box::before {
       content: '';
@@ -114,13 +103,14 @@ const injectCSS = () => {
       overflow: hidden;
       background: rgba(0,0,0,0.3);
       margin-bottom: 10px;
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .slider-wrap img {
       width: 100%;
-      height: 360px;
+      height: 100%;
       object-fit: contain;
       object-position: center;
       display: block;
@@ -260,19 +250,17 @@ const goTo = (n) => {
 
 const nextSlide = () => goTo(currentIndex + 1);
 const prevSlide = () => goTo(currentIndex - 1);
+
 const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL); };
 const stopSlider  = () => { clearInterval(sliderInterval); };
 
 const closePopup = () => {
-  const overlay = document.getElementById(CONFIG.OVERLAY_ID);
-  if (!overlay) return;
-  overlay.style.transition = "opacity 0.35s";
-  overlay.style.opacity = "0";
-  setTimeout(() => {
-    overlay.remove();
-    stopSlider();
-    isShown = false;
-  }, 360);
+  const popup = document.getElementById(CONFIG.OVERLAY_ID);
+  if (!popup) return;
+  popup.style.transition = "opacity 0.35s, transform 0.35s";
+  popup.style.opacity = "0";
+  popup.style.transform = "translate(-50%, -50%) scale(0.85)";
+  setTimeout(() => { popup.remove(); stopSlider(); isShown = false; }, 360);
 };
 
 const showPopup = () => {
@@ -285,14 +273,9 @@ const showPopup = () => {
   buildDots();
   startSlider();
 
-  document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
-  document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
+  document.querySelector(".nav.right").onclick = () => { nextSlide(); stopSlider(); };
+  document.querySelector(".nav.left").onclick  = () => { prevSlide(); stopSlider(); };
   document.getElementById(CONFIG.CLOSE_ID).onclick = closePopup;
-
-  // ✅ Klik di luar popup-box = tutup
-  document.getElementById(CONFIG.OVERLAY_ID).onclick = (e) => {
-    if (!e.target.closest(".popup-box")) closePopup();
-  };
 };
 
 document.readyState === "loading"
