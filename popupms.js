@@ -53,23 +53,27 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
-    /* ✅ KUNCI UTAMA: pointer-events none pada wrapper
-       Sehingga klik di luar popup-box tembus ke elemen site */
     #IMG_POPUP {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 999999;
-      pointer-events: none; /* wrapper tidak menangkap klik */
+
+      /* ✅ z-index lebih rendah dari navbar site (biasanya 1000-9999)
+         Popup tetap di atas konten biasa tapi di bawah navbar */
+      z-index: 899;
+
+      /* ✅ Wrapper tidak menangkap klik sama sekali */
+      pointer-events: none;
+
       animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
 
-    /* ✅ Hanya popup-box yang menerima klik */
+    /* ✅ Hanya kotak popup yang menerima klik */
     .popup-box {
       pointer-events: auto;
       position: relative;
-      background: rgba(15, 20, 50, 0.92);
+      background: rgba(15, 20, 50, 0.95);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,0.14);
@@ -77,8 +81,8 @@ const injectCSS = () => {
       padding: 18px 18px 16px;
       width: 530px;
       height: 526px;
-      max-width: 96vw;
-      max-height: 96vh;
+      max-width: 92vw;
+      max-height: 88vh;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -282,7 +286,6 @@ const closePopup = () => {
   }, 360);
 };
 
-// ✅ Klik di luar popup-box = tutup, tapi klik tetap tembus ke elemen site
 const onDocumentClick = (e) => {
   const popup = document.getElementById(CONFIG.OVERLAY_ID);
   if (!popup) return;
