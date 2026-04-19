@@ -6,19 +6,8 @@ const CONFIG = {
   ],
   OVERLAY_ID: "IMG_POPUP",
   CLOSE_ID: "IMG_CLOSE",
-  INTERVAL: 3000,
-  HOME_PATHS: ["/", "/home", "/index", "/index.html", "/index.php"]
+  INTERVAL: 3000
 };
-
-const isHomePage = () => {
-  const path = window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
-  return CONFIG.HOME_PATHS.some(p => {
-    const normalized = p.toLowerCase().replace(/\/$/, "") || "/";
-    return path === normalized;
-  });
-};
-
-if (!isHomePage()) return;
 
 let isShown = false;
 let currentIndex = 0;
@@ -53,27 +42,19 @@ const injectCSS = () => {
       50%      { opacity: 1;   transform: scale(1.4); }
     }
 
+    /* ✅ POPUP: posisi tengah layar, TANPA overlay fullscreen */
     #IMG_POPUP {
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-
-      /* ✅ z-index lebih rendah dari navbar site (biasanya 1000-9999)
-         Popup tetap di atas konten biasa tapi di bawah navbar */
-      z-index: 899;
-
-      /* ✅ Wrapper tidak menangkap klik sama sekali */
-      pointer-events: none;
-
+      z-index: 999999;
       animation: popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards;
     }
 
-    /* ✅ Hanya kotak popup yang menerima klik */
     .popup-box {
-      pointer-events: auto;
       position: relative;
-      background: rgba(15, 20, 50, 0.95);
+      background: rgba(15, 20, 50, 0.92);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255,255,255,0.14);
@@ -81,8 +62,8 @@ const injectCSS = () => {
       padding: 18px 18px 16px;
       width: 530px;
       height: 526px;
-      max-width: 92vw;
-      max-height: 88vh;
+      max-width: 96vw;
+      max-height: 96vh;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -269,6 +250,7 @@ const goTo = (n) => {
 
 const nextSlide = () => goTo(currentIndex + 1);
 const prevSlide = () => goTo(currentIndex - 1);
+
 const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL); };
 const stopSlider  = () => { clearInterval(sliderInterval); };
 
@@ -278,19 +260,7 @@ const closePopup = () => {
   popup.style.transition = "opacity 0.35s, transform 0.35s";
   popup.style.opacity = "0";
   popup.style.transform = "translate(-50%, -50%) scale(0.85)";
-  setTimeout(() => {
-    popup.remove();
-    stopSlider();
-    isShown = false;
-    document.removeEventListener("click", onDocumentClick, true);
-  }, 360);
-};
-
-const onDocumentClick = (e) => {
-  const popup = document.getElementById(CONFIG.OVERLAY_ID);
-  if (!popup) return;
-  const box = popup.querySelector(".popup-box");
-  if (box && !box.contains(e.target)) closePopup();
+  setTimeout(() => { popup.remove(); stopSlider(); isShown = false; }, 360);
 };
 
 const showPopup = () => {
@@ -299,12 +269,13 @@ const showPopup = () => {
   document.body.insertAdjacentHTML("beforeend", renderHTML());
   isShown = true;
   currentIndex = 0;
+
   buildDots();
   startSlider();
-  document.querySelector(".nav.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
-  document.querySelector(".nav.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
-  document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
-  setTimeout(() => { document.addEventListener("click", onDocumentClick, true); }, 600);
+
+  document.querySelector(".nav.right").onclick = () => { nextSlide(); stopSlider(); };
+  document.querySelector(".nav.left").onclick  = () => { prevSlide(); stopSlider(); };
+  document.getElementById(CONFIG.CLOSE_ID).onclick = closePopup;
 };
 
 document.readyState === "loading"
