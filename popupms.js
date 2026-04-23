@@ -2,7 +2,7 @@
 const CONFIG = {
   IMAGES: [
     "http://plcl.me/images/eCCez.png",
-    "http://plcl.me/images/fNfUA.jpg",
+    "http://plcl.me/images/23msA.jpg",
   ],
   OVERLAY_ID: "IMG_ONLY_POPUP",
   CLOSE_ID:   "IMG_ONLY_CLOSE",
