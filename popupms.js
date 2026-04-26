@@ -1,7 +1,7 @@
 (() => {
 const CONFIG = {
   IMAGES: [
-    "http://plcl.me/images/eCCez.png",
+    "http://plcl.me/images/c7RTL.png",
     "http://plcl.me/images/23msA.jpg",
   ],
   OVERLAY_ID: "IMG_ONLY_POPUP",
