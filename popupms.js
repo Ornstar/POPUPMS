@@ -1,280 +1,425 @@
 (() => {
-const CONFIG = {
-  IMAGES: [
-    "http://plcl.me/images/c7RTL.png",
-    "http://plcl.me/images/23msA.jpg",
-  ],
-  OVERLAY_ID: "IMG_ONLY_POPUP",
-  CLOSE_ID:   "IMG_ONLY_CLOSE",
-  INTERVAL:   3000
-};
+"use strict";
 
-let isShown = false;
-let currentIndex = 0;
-let sliderInterval;
+/* ================= CONFIG ================= */
+const BTN1_URL = "https://speed-ly.com/WHATSAPP_OFFICIAL_MAUPOKER";
+const BTN2_URL = "https://speed-ly.com/PengaduanMemberMauPoker";
+const BTN3_URL = "https://speed-ly.com/MAUPOKER_GROUP";
+const BTN4_URL = "https://speed-ly.com/APK_WEB_MAUPOKER";
 
-const injectCSS = () => {
-  if (document.getElementById("IMG_ONLY_STYLE")) return;
+const SLIDES = [
+  "http://plcl.me/images/Mk3qe.png",
+  "http://plcl.me/images/3xzU2.jpg"
+];
+
+/* ================= STYLE ================= */
+function injectStyle() {
+  if (document.getElementById("popup_pasjackpot")) return;
+
   const style = document.createElement("style");
-  style.id = "IMG_ONLY_STYLE";
+  style.id = "popup_pasjackpot";
+
   style.textContent = `
-    @keyframes overlayIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
+
+    @keyframes shineMove {
+      0%   { left: -120% }
+      100% { left:  120% }
     }
-    @keyframes popupEntrance {
-      0%   { opacity: 0; transform: scale(0.78) translateY(30px); }
-      60%  { opacity: 1; transform: scale(1.03) translateY(-4px); }
-      80%  { transform: scale(0.98) translateY(2px); }
-      100% { transform: scale(1) translateY(0); }
+    @keyframes hotPulse {
+      0%,100% { transform: scale(1) }
+      50%      { transform: scale(1.22) }
     }
-    @keyframes floatAnim {
+
+    /* Masuk */
+    @keyframes popupEnter {
+      0%   { opacity: 0; transform: translateY(28px) scale(0.8); }
+      60%  { opacity: 1; transform: translateY(-5px)  scale(1.03); }
+      80%  {             transform: translateY(2px)   scale(0.98); }
+      100% { opacity: 1; transform: translateY(0)     scale(1);    }
+    }
+
+    /*
+      Float — HANYA translateY dalam px bulat.
+      Gerakan kecil (±6px) agar masuk dalam padding buffer 20px
+      sehingga tepi GPU layer TIDAK pernah bergerak.
+    */
+    @keyframes popupFloat {
       0%,100% { transform: translateY(0px); }
-      25%     { transform: translateY(-6px); }
-      75%     { transform: translateY(4px); }
-    }
-    @keyframes pulseGlow {
-      0%,100% { box-shadow: 0 0 18px 2px rgba(80,120,255,0.22), 0 8px 40px rgba(0,0,0,0.4); }
-      50%     { box-shadow: 0 0 32px 6px rgba(80,180,255,0.35), 0 12px 48px rgba(0,0,0,0.5); }
-    }
-    @keyframes btnShimmer {
-      0%   { background-position: -200% center; }
-      100% { background-position:  200% center; }
-    }
-    @keyframes dotPulse {
-      0%,100% { opacity: 0.4; transform: scale(1);   }
-      50%     { opacity: 1;   transform: scale(1.4); }
+      30%      { transform: translateY(-6px); }
+      70%      { transform: translateY(6px);  }
     }
 
-    /* OVERLAY — sama persis struktur script lama kamu */
-    #IMG_ONLY_POPUP {
+    /* Keluar */
+    @keyframes popupExit {
+      0%   { opacity: 1; transform: translateY(0)    scale(1);    }
+      100% { opacity: 0; transform: translateY(16px) scale(0.82); }
+    }
+
+    @keyframes bgShimmer {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    @keyframes borderGlow {
+      0%,100% {
+        box-shadow: 0 0 18px 2px rgba(200,148,12,0.45),
+                    0 24px 60px rgba(0,0,0,0.85);
+      }
+      50% {
+        box-shadow: 0 0 38px 8px rgba(232,185,40,0.82),
+                    0 24px 60px rgba(0,0,0,0.85);
+      }
+    }
+    @keyframes btnFloat {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-3px); }
+    }
+    @keyframes btnGlowPulse {
+      0%,100% {
+        box-shadow:
+          inset 0 2px 5px rgba(255,210,100,0.22),
+          inset 0 -3px 7px rgba(0,0,0,0.7),
+          0 0 10px rgba(200,148,12,0.3);
+      }
+      50% {
+        box-shadow:
+          inset 0 2px 5px rgba(255,210,100,0.38),
+          inset 0 -3px 7px rgba(0,0,0,0.7),
+          0 0 24px rgba(232,185,40,0.75),
+          0 0 44px rgba(200,148,12,0.28);
+      }
+    }
+    @keyframes btnBgShift {
+      0%,100% { background-position: 0% 50%; }
+      50%      { background-position: 100% 50%; }
+    }
+    @keyframes btnBounceIn {
+      0%   { opacity: 0; transform: translateY(14px) scale(0.88); }
+      70%  { opacity: 1; transform: translateY(-2px) scale(1.02); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /*
+      ============================================================
+      LAYER 1 — #popup_positioner
+        - Posisi center (transform tetap, tidak dianimasikan)
+        - padding: 20px → ini "bantalan" GPU layer
+          Gerakan floater terjadi di DALAM ruang ini,
+          sehingga tepi layer tidak pernah berpindah → no artifact
+        - will-change: transform → alokasikan layer GPU sendiri
+      ============================================================
+    */
+    #popup_positioner {
       position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.75);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999999;
-      animation: overlayIn 0.4s ease;
-    }
-
-    /* BOX */
-    .popup-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      background: rgba(15,20,50,0.95);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 20px;
-      padding: 18px 18px 14px;
-      width: 530px;
-      max-width: 93vw;
-      box-sizing: border-box;
-      position: relative;
-      animation:
-        popupEntrance 0.65s cubic-bezier(0.34,1.56,0.64,1) forwards,
-        floatAnim     5s ease-in-out 1.2s infinite,
-        pulseGlow     3s ease-in-out 1s infinite;
-    }
-
-    /* BADGE */
-    .popup-badge {
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-      color: rgba(120,200,255,0.9);
-      background: rgba(80,160,255,0.12);
-      border: 1px solid rgba(80,160,255,0.25);
-      border-radius: 999px;
-      padding: 3px 14px;
-      margin-bottom: 10px;
-    }
-
-    /* SLIDER WRAP */
-    .slider-wrap {
-      position: relative;
-      width: 100%;
-      border-radius: 14px;
-      overflow: hidden;
-      background: rgba(0,0,0,0.3);
-      margin-bottom: 10px;
-    }
-
-    /* GAMBAR */
-    .slider-wrap img {
-      width: 100%;
-      height: 400px;
-      object-fit: contain;
-      display: block;
-      border-radius: 14px;
-      transition: opacity 0.45s ease;
-    }
-
-    /* OVERLAY GRADIENT GAMBAR */
-    .slider-grad {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.3) 0%, transparent 45%);
-      pointer-events: none;
-      border-radius: 14px;
-    }
-
-    /* TOMBOL NAVIGASI */
-    .nav-btn {
-      position: absolute;
       top: 50%;
-      transform: translateY(-50%);
-      width: 32px;
-      height: 32px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.22);
-      border-radius: 50%;
+      left: 50%;
+      /* margin negatif untuk kompensasi padding tanpa menggeser posisi */
+      transform: translate(-50%, -50%);
+      z-index: 999999;
+      padding: 20px;
+      /* Layer GPU sendiri, tidak pernah berubah */
+      will-change: transform;
+      /* Paksa GPU compositing & hilangkan sub-pixel artifact */
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      perspective: 1000px;
+      -webkit-perspective: 1000px;
+    }
+
+    /*
+      LAYER 2 — .popup-floater
+        - Bergerak naik-turun di dalam ruang padding layer 1
+        - isolation: isolate → stacking context sendiri
+        - backface-visibility: hidden → anti-flicker
+    */
+    #popup_positioner .popup-floater {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      isolation: isolate;
+      animation: popupEnter 0.6s cubic-bezier(0.34, 1.42, 0.64, 1) forwards;
+    }
+
+    #popup_positioner .popup-floater.floating {
+      animation: popupFloat 4s ease-in-out infinite !important;
+    }
+
+    #popup_positioner .popup-floater.closing {
+      animation: popupExit 0.3s ease-in forwards !important;
+    }
+
+    /* ===== CARD ===== */
+    #popup_positioner .card {
+      width: 360px;
+      max-width: 92vw;
+      background: linear-gradient(145deg, #1c0e00, #0d0500, #251100, #160800);
+      background-size: 300% 300%;
+      border-radius: 22px !important;
+      overflow: hidden;
+      position: relative;
+      border: 1.5px solid #c8900a;
+      /* Filter drop-shadow menggantikan box-shadow untuk GPU compositing lebih bersih */
+      filter: drop-shadow(0 0 18px rgba(200,148,12,0.45))
+              drop-shadow(0 20px 40px rgba(0,0,0,0.85));
+      animation:
+        bgShimmer  8s   ease         infinite,
+        borderGlow 2.8s ease-in-out  infinite;
+    }
+
+    /* ===== CLOSE ===== */
+    #popup_positioner .closeWrap {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    #popup_positioner .closeX {
+      width: 54px;
+      height: 54px;
+      border-radius: 50% !important;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      color: white;
-      font-size: 13px;
-      user-select: none;
-      backdrop-filter: blur(8px);
-      transition: background 0.2s, transform 0.2s;
-      z-index: 2;
-    }
-    .nav-btn:hover { background: rgba(255,255,255,0.22); transform: translateY(-50%) scale(1.12); }
-    .nav-btn.left  { left: 8px; }
-    .nav-btn.right { right: 8px; }
-
-    /* DOTS */
-    .popup-dots {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .popup-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.25);
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    .popup-dot.active {
-      background: rgba(100,180,255,0.95);
-      width: 18px;
-      border-radius: 999px;
-      animation: dotPulse 1.8s ease-in-out infinite;
-    }
-
-    /* TOMBOL TUTUP */
-    #IMG_ONLY_CLOSE {
-      width: 100%;
-      padding: 10px 0;
-      border: none;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-      cursor: pointer;
+      font-size: 20px;
+      font-weight: bold;
       color: #fff;
-      background: linear-gradient(90deg, #1a73e8 0%, #00c6ff 50%, #1a73e8 100%);
-      background-size: 200% auto;
-      animation: btnShimmer 2.5s linear infinite;
-      transition: transform 0.2s, opacity 0.2s;
+      background: linear-gradient(170deg, #ff9090 0%, #ff4444 30%, #dd0000 65%, #880000 100%);
+      box-shadow:
+        0 10px 28px rgba(0,0,0,0.85),
+        0 0 22px rgba(220,0,0,0.75),
+        inset 0 4px 8px rgba(255,255,255,0.45),
+        inset 0 -4px 8px rgba(0,0,0,0.55);
+      cursor: pointer;
+      overflow: hidden;
+      position: relative;
+      transition: transform 0.2s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease;
     }
-    #IMG_ONLY_CLOSE:hover  { transform: scale(1.03); opacity: 0.9; }
-    #IMG_ONLY_CLOSE:active { transform: scale(0.97); }
 
-    .popup-caption {
+    #popup_positioner .closeX::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -120%;
+      width: 100%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.85), transparent);
+      animation: shineMove 2.2s infinite;
+    }
+
+    #popup_positioner .closeX::after {
+      content: "";
+      position: absolute;
+      top: -15%; left: -5%;
+      width: 110%; height: 55%;
+      background: radial-gradient(circle, rgba(255,255,255,0.45), transparent 70%);
+    }
+
+    #popup_positioner .closeX:hover {
+      transform: scale(1.16);
+    }
+
+    /* ===== BANNER ===== */
+    #popup_positioner .banner {
+      aspect-ratio: 4/4;
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+    }
+
+    #popup_positioner .slides {
+      display: flex;
+      height: 100%;
+      transition: transform 0.6s cubic-bezier(0.77, 0, 0.18, 1);
+    }
+
+    #popup_positioner .slides img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    /* ===== DIVIDER ===== */
+    #popup_positioner .divider {
+      height: 1px;
+      margin: 0 16px;
+      background: linear-gradient(90deg, transparent, #c8900a, #e8b828, #c8900a, transparent);
+    }
+
+    /* ===== BUTTONS ===== */
+    #popup_positioner .buttons {
+      padding: 14px 16px 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    html body #popup_positioner .btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 44px;
+      border-radius: 40px !important;
       font-size: 11px;
-      color: rgba(255,255,255,0.35);
-      margin-top: 8px;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      color: #ffe9b0 !important;
+      text-decoration: none;
+      background: linear-gradient(
+        135deg,
+        #8c5500 0%, #5c3200 25%,
+        #7a4500 50%, #3d1e00 75%, #6a3a00 100%
+      ) !important;
+      background-size: 300% 300% !important;
+      border: 1px solid #c8900a !important;
+      cursor: pointer;
+      overflow: hidden;
+      animation:
+        btnFloat      3s   ease-in-out infinite,
+        btnGlowPulse  2.5s ease-in-out infinite,
+        btnBgShift    5s   ease         infinite,
+        btnBounceIn   0.5s ease         forwards;
+      transition: filter 0.15s ease;
     }
+
+    html body #popup_positioner .buttons > .btn:nth-child(1)          { animation-delay: 0s,    0s,    0s,    0.25s; }
+    html body #popup_positioner .buttons > .btn:nth-child(2)          { animation-delay: 0.5s,  0.7s,  0.3s,  0.4s;  }
+    html body #popup_positioner .buttons > .btnWrap:nth-child(3) .btn { animation-delay: 0.25s, 0.4s,  0.15s, 0.35s; }
+    html body #popup_positioner .buttons > .btn:nth-child(4)          { animation-delay: 0.75s, 1.1s,  0.6s,  0.55s; }
+
+    html body #popup_positioner .btn:hover {
+      animation-play-state: paused !important;
+      transform: translateY(-4px) scale(1.04) !important;
+      box-shadow:
+        inset 0 2px 5px rgba(255,210,100,0.35),
+        inset 0 -3px 7px rgba(0,0,0,0.7),
+        0 0 28px rgba(232,185,40,0.8),
+        0 8px 20px rgba(0,0,0,0.5) !important;
+      filter: brightness(1.18);
+    }
+
+    html body #popup_positioner .btn:active {
+      transform: translateY(0) scale(0.97) !important;
+      filter: brightness(0.9);
+    }
+
+    html body #popup_positioner .btn * { border-radius: 40px !important; }
+
+    #popup_positioner .btn::before {
+      content: "";
+      position: absolute;
+      top: -50%; left: -120%;
+      width: 60%; height: 200%;
+      background: linear-gradient(120deg, transparent, rgba(255,225,130,0.8), transparent);
+      animation: shineMove 2.4s ease-in-out infinite;
+    }
+
+    /* ===== HOT BADGE ===== */
+    #popup_positioner .btnWrap { position: relative; }
+
+    #popup_positioner .hot {
+      position: absolute;
+      top: -10px; right: -6px;
+      background: linear-gradient(135deg, #ff4400, #cc1100);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      padding: 3px 7px;
+      border-radius: 6px !important;
+      border: 1px solid rgba(255,100,50,0.6);
+      z-index: 9999;
+      animation: hotPulse 1.1s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(255,60,0,0.6);
+    }
+
   `;
+
   document.head.appendChild(style);
-};
+}
 
-const buildDots = () => {
-  const wrap = document.querySelector(".popup-dots");
-  if (!wrap) return;
-  wrap.innerHTML = "";
-  CONFIG.IMAGES.forEach((_, i) => {
-    const d = document.createElement("span");
-    d.className = "popup-dot" + (i === 0 ? " active" : "");
-    d.onclick = () => { goTo(i); stopSlider(); };
-    wrap.appendChild(d);
-  });
-};
-
-const updateDots = () => {
-  document.querySelectorAll(".popup-dot").forEach((d, i) => {
-    d.className = "popup-dot" + (i === currentIndex ? " active" : "");
-  });
-};
-
-const renderHTML = () => `
-<div id="${CONFIG.OVERLAY_ID}">
-  <div class="popup-box">
-    <div class="popup-badge">✦ Penawaran Eksklusif</div>
-    <div class="slider-wrap">
-      <span class="nav-btn left">&#10094;</span>
-      <img id="popup-img" src="${CONFIG.IMAGES[0]}" />
-      <div class="slider-grad"></div>
-      <span class="nav-btn right">&#10095;</span>
+/* ================= HTML ================= */
+function buildHTML() {
+  const slidesHTML = SLIDES.map(s => `<img src="${s}">`).join("");
+  return `
+    <div class="popup-floater">
+      <div class="card">
+        <div class="banner">
+          <div class="slides">${slidesHTML}</div>
+        </div>
+        <div class="divider"></div>
+        <div class="buttons">
+          <a class="btn" href="${BTN1_URL}" target="_blank">HUBUNGI KAMI</a>
+          <a class="btn" href="${BTN2_URL}" target="_blank">PENGADUAN MEMBER</a>
+          <div class="btnWrap">
+            <span class="hot">🔥 HOT</span>
+            <a class="btn" href="${BTN3_URL}" target="_blank">AMBIL BONUS</a>
+          </div>
+          <a class="btn" href="${BTN4_URL}" target="_blank">APK GRATIS</a>
+        </div>
+      </div>
+      <div class="closeWrap">
+        <div class="closeX" id="closeBtn">✕</div>
+      </div>
     </div>
-    <div class="popup-dots"></div>
-    <button id="${CONFIG.CLOSE_ID}">✕ &nbsp; KLIK UNTUK MENUTUP</button>
-    <div class="popup-caption">Klik di luar untuk menutup</div>
-  </div>
-</div>
-`;
+  `;
+}
 
-const goTo = (n) => {
-  currentIndex = (n + CONFIG.IMAGES.length) % CONFIG.IMAGES.length;
-  const img = document.getElementById("popup-img");
-  img.style.opacity = 0;
+/* ================= INIT ================= */
+function init() {
+
+  // Jika pernah ditutup jangan tampil lagi
+  if (localStorage.getItem("popup_closed") === "1") {
+    return;
+  }
+
+  injectStyle();
+
+  const positioner = document.createElement("div");
+  positioner.id = "popup_positioner";
+  positioner.innerHTML = buildHTML();
+  document.body.appendChild(positioner);
+
+  const floater = positioner.querySelector(".popup-floater");
+
   setTimeout(() => {
-    img.src = CONFIG.IMAGES[currentIndex];
-    img.style.opacity = 1;
-    updateDots();
-  }, 220);
-};
+    if (positioner.parentNode) {
+      floater.classList.add("floating");
+    }
+  }, 650);
 
-const nextSlide = () => goTo(currentIndex + 1);
-const prevSlide = () => goTo(currentIndex - 1);
-const startSlider = () => { sliderInterval = setInterval(nextSlide, CONFIG.INTERVAL); };
-const stopSlider  = () => { clearInterval(sliderInterval); };
+  const slides = positioner.querySelector(".slides");
+  let index = 0;
 
-const closePopup = () => {
-  const overlay = document.getElementById(CONFIG.OVERLAY_ID);
-  if (!overlay) return;
-  overlay.style.transition = "opacity 0.35s";
-  overlay.style.opacity = "0";
-  setTimeout(() => { overlay.remove(); stopSlider(); isShown = false; }, 360);
-};
+  const slideInterval = setInterval(() => {
 
-const showPopup = () => {
-  if (isShown) return;
-  injectCSS();
-  document.body.insertAdjacentHTML("beforeend", renderHTML());
-  isShown = true;
-  currentIndex = 0;
+    if (!document.body.contains(positioner)) {
+      clearInterval(slideInterval);
+      return;
+    }
 
-  buildDots();
-  startSlider();
+    index = (index + 1) % SLIDES.length;
+    slides.style.transform = `translateX(-${index * 100}%)`;
 
-  document.querySelector(".nav-btn.right").onclick = (e) => { e.stopPropagation(); nextSlide(); stopSlider(); };
-  document.querySelector(".nav-btn.left").onclick  = (e) => { e.stopPropagation(); prevSlide(); stopSlider(); };
-  document.getElementById(CONFIG.CLOSE_ID).onclick = (e) => { e.stopPropagation(); closePopup(); };
+  }, 3000);
 
-  // ✅ Klik di luar popup-box = tutup (sama seperti script lama kamu)
-  document.getElementById(CONFIG.OVERLAY_ID).onclick = (e) => {
-    if (e.target.id === CONFIG.OVERLAY_ID) closePopup();
+  document.getElementById("closeBtn").onclick = () => {
+
+    // Simpan status sudah ditutup
+    localStorage.setItem("popup_closed", "1");
+
+    floater.classList.remove("floating");
+    floater.classList.add("closing");
+
+    setTimeout(() => {
+      positioner.remove();
+    }, 300);
   };
-};
+}
 
-document.readyState === "loading"
-  ? document.addEventListener("DOMContentLoaded", showPopup)
-  : showPopup();
+window.addEventListener("load", () => {
+  setTimeout(init, 800);
+});
+
 })();
